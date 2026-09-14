@@ -38,6 +38,46 @@ CREATE TABLE IF NOT EXISTS complaints (
 """)
 
 conn.commit()
+# Seed demo complaints when running on a fresh deployment
+cursor.execute("SELECT COUNT(*) FROM complaints")
+complaint_count = cursor.fetchone()[0]
+
+if complaint_count == 0:
+    cursor.executemany(
+        """
+        INSERT INTO complaints
+        (category, description, location, status,
+         resolution_description, resolution_photo)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        [
+            (
+                "Pothole",
+                "Large pothole near the road",
+                "Vasant Vihar",
+                "Reported",
+                None,
+                None,
+            ),
+            (
+                "Pothole",
+                "Large pothole near the road",
+                "Vasant Vihar",
+                "Reported",
+                None,
+                None,
+            ),
+            (
+                "Roads",
+                "pothole in road",
+                "Vasant Vihar, Delhi",
+                "Resolution Submitted",
+                "Pothole repaired and road surface restored",
+                "resolution-photo-demo.jpg",
+            ),
+        ],
+    )
+    conn.commit()
 try:
     cursor.execute("ALTER TABLE complaints ADD COLUMN resolution_description TEXT")
     cursor.execute("ALTER TABLE complaints ADD COLUMN resolution_photo TEXT")
