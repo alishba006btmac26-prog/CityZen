@@ -501,7 +501,7 @@ function ReportModal({ open, close }: { open: boolean; close: () => void }) {
 
 async function submit() {
   try {
-    const response = await fetch("${API_BASE_URL}/complaints", {
+    const response = await fetch(`${API_BASE_URL}/complaints`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -2466,7 +2466,7 @@ function Authority() {
   const [backendComplaints, setBackendComplaints] = useState<any[]>([]);
   async function loadComplaints() {
   try {
-    const response = await fetch("${API_BASE_URL}/complaints");
+    const response = await fetch(`${API_BASE_URL}/complaints`);
     const data = await response.json();
     setBackendComplaints(data);
   } catch (error) {
