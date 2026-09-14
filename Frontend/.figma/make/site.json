@@ -1,0 +1,10 @@
+{
+  "description": "Empowering citizens to report local issues and track resolutions, this platform fosters community engagement and transparency for a better urban environment.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
