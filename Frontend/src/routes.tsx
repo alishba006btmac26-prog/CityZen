@@ -824,6 +824,27 @@ function TrackModal({ open, close }: { open: boolean; close: () => void }) {
   const [searchId, setSearchId] = useState("");
   const [trackedComplaint, setTrackedComplaint] = useState<any>(null);
   const [trackError, setTrackError] = useState("");
+  const [backendReports, setBackendReports] = useState<any[]>([]);
+
+useEffect(() => {
+  if (!open) return;
+
+  fetch(`${API_BASE_URL}/complaints`)
+    .then((response) => response.json())
+    .then((data) => {
+      setBackendReports(
+        data.map((r: any) => ({
+          id: r.complaint_id,
+          type: r.category,
+          loc: r.location,
+          status: r.status,
+        }))
+      );
+    })
+    .catch((error) => {
+      console.error("Error loading reports:", error);
+    });
+}, [open]);
 
   async function trackComplaint() {
     setTrackError("");
@@ -935,7 +956,7 @@ function TrackModal({ open, close }: { open: boolean; close: () => void }) {
 
         {!trackedComplaint && !trackError && (
           <>
-            {myReports.map(r => {
+            {backendReports.map(r => {
               const sc = statusColors[r.status] ?? {
                 bg: "#1C2128",
                 color: "#94a3b8",
