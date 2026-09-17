@@ -40,11 +40,22 @@ CREATE TABLE IF NOT EXISTS complaints (
     status TEXT,
     complaint_photo TEXT,
     resolution_description TEXT,
-    resolution_photo TEXT
+    resolution_photo TEXT, challenge_photo TEXT, challenge_description TEXT
 )
 """)
+
 try:
     cursor.execute("ALTER TABLE complaints ADD COLUMN complaint_photo TEXT")
+    conn.commit()
+except sqlite3.OperationalError:
+    pass
+try:
+    cursor.execute("ALTER TABLE complaints ADD COLUMN challenge_photo TEXT")
+    conn.commit()
+except sqlite3.OperationalError:
+    pass
+try:
+    cursor.execute("ALTER TABLE complaints ADD COLUMN challenge_description TEXT")
     conn.commit()
 except sqlite3.OperationalError:
     pass
@@ -161,7 +172,8 @@ def get_complaint(complaint_id: str):
     cursor.execute(
         """
 SELECT id, category, description, location, status,
-       complaint_photo, resolution_description, resolution_photo
+       complaint_photo, resolution_description, resolution_photo,
+       challenge_photo, challenge_description
 FROM complaints
         WHERE id = ?
         """,
@@ -180,7 +192,9 @@ FROM complaints
         "location": complaint[3],
         "status": complaint[4],
         "resolution_description": complaint[6],
-        "resolution_photo": complaint[7]
+        "resolution_photo": complaint[7], 
+        "challenge_photo": complaint[8],
+        "challenge_description": complaint[9]
     }
 
 @app.get("/complaints")
@@ -196,7 +210,9 @@ def get_complaints():
         status,
         complaint_photo,
         resolution_description,
-        resolution_photo
+        resolution_photo, 
+        challenge_photo,
+        challenge_description
     FROM complaints
     ORDER BY id DESC
     """
@@ -215,7 +231,9 @@ def get_complaints():
             "status": complaint[4],
             "complaint_photo": complaint[5],
             "resolution_description": complaint[6],
-            "resolution_photo": complaint[7]
+            "resolution_photo": complaint[7],
+            "challenge_photo": complaint[8],
+            "challenge_description": complaint[9]
         })
 
     return result
@@ -248,6 +266,47 @@ class Resolution(BaseModel):
     description: str
     photo: str
 
+@app.put("/complaints/{complaint_id}/challenge")
+async def submit_challenge(
+    complaint_id: str,
+    photo: UploadFile | None = File(None),
+):
+    complaint_number = int(complaint_id.split("-")[-1])
+
+    photo_filename = None
+
+    if photo:
+        photo_filename = photo.filename
+        photo_path = UPLOAD_DIR / photo.filename
+
+        with open(photo_path, "wb") as buffer:
+            buffer.write(await photo.read())
+
+    cursor.execute(
+        """
+        UPDATE complaints
+        SET challenge_photo = ?,
+            status = ?
+        WHERE id = ?
+        """,
+        (
+            photo_filename,
+            "Challenged",
+            complaint_number,
+        ),
+    )
+
+    conn.commit()
+
+    if cursor.rowcount == 0:
+        return {"error": "Complaint not found"}
+
+    return {
+        "complaint_id": complaint_id,
+        "status": "Challenged",
+        "message": "Challenge submitted successfully",
+        "challenge_photo": photo_filename,
+    }
 
 @app.put("/complaints/{complaint_id}/resolution")
 async def submit_resolution(
@@ -292,4 +351,50 @@ async def submit_resolution(
         "status": "Resolution Submitted",
         "message": "Resolution evidence submitted successfully",
         "resolution_photo": photo_filename,
+    }
+@app.put("/complaints/{complaint_id}/challenge")
+async def submit_challenge(
+    complaint_id: str,
+    reason: str = Form(...),
+    photo: UploadFile | None = File(None),
+):
+    complaint_number = int(complaint_id.split("-")[-1])
+    print("CHALLENGE REASON RECEIVED:", repr(reason))
+
+    photo_filename = None
+
+    if photo:
+        photo_filename = photo.filename
+        photo_path = UPLOAD_DIR / photo.filename
+
+        with open(photo_path, "wb") as buffer:
+            buffer.write(await photo.read())
+
+    cursor.execute(
+        """
+        UPDATE complaints
+        SET challenge_photo = ?,
+            challenge_description = ?,
+            status = ?
+        WHERE id = ?
+        """,
+        (
+            photo_filename,
+            reason,
+            "Challenged",
+            complaint_number,
+        ),
+    )
+
+    conn.commit()
+
+    if cursor.rowcount == 0:
+        return {"error": "Complaint not found"}
+
+    return {
+        "complaint_id": complaint_id,
+        "status": "Challenged",
+        "message": "Challenge submitted successfully",
+        "challenge_photo": photo_filename,
+        "challenge_description": reason,
     }
