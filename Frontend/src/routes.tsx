@@ -508,10 +508,11 @@ async function submit() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        category: domain,
-        description: note,
-        location: "Vasant Vihar, Delhi",
-      }),
+  category: domain,
+  description: note,
+  location: "Vasant Vihar, Delhi",
+  photo: photo ? photo.name : null,
+}),
     });
 
     const data = await response.json();
