@@ -987,6 +987,64 @@ useEffect(() => {
             >
               {trackedComplaint.status}
             </div>
+            {trackedComplaint.resolution_description && (
+  <div
+    style={{
+      marginTop: 16,
+      padding: 14,
+      borderRadius: 12,
+      background: "#111827",
+      border: "1px solid #2d3748",
+    }}
+  >
+    <div
+      style={{
+        fontSize: 13,
+        fontWeight: 700,
+        color: "#4ade80",
+        marginBottom: 8,
+      }}
+    >
+      ✓ Resolution Submitted
+    </div>
+
+    <div
+      style={{
+        fontSize: 12,
+        color: "#cbd5e1",
+        marginBottom: 12,
+      }}
+    >
+      {trackedComplaint.resolution_description}
+    </div>
+
+    {trackedComplaint.resolution_photo && (
+      <div>
+        <div
+          style={{
+            fontSize: 12,
+            color: "#94a3b8",
+            marginBottom: 8,
+          }}
+        >
+          📷 Resolution photo
+        </div>
+
+        <img
+          src={`http://127.0.0.1:8000/uploads/${trackedComplaint.resolution_photo}`}
+          alt="Resolution evidence"
+          style={{
+            width: "100%",
+            maxHeight: 300,
+            objectFit: "cover",
+            borderRadius: 12,
+            display: "block",
+          }}
+        />
+      </div>
+    )}
+  </div>
+)}
           </div>
         )}
 
@@ -2134,7 +2192,11 @@ const authorityReports = [
   { id: "RPT-2094", type: "Garbage Pile", icon: "♜", desc: "Uncollected waste for 5 days.", location: "Vasant Kunj, Sector C", status: "Pending", priority: "Medium", dept: "Waste Management", time: "Oct 14 · 9:00 AM", upvotes: 76, delayReason: "Budget approval" as string | null },
 ];
 
-type AuthReport = typeof authorityReports[0];
+type AuthReport = typeof authorityReports[0] & {
+  complaint_id?: string;
+  resolution_description?: string;
+  resolution_photo?: string | null;
+};
 
 function AuthorityReportSheet({
   r,
@@ -2147,7 +2209,7 @@ function AuthorityReportSheet({
 }) {
   const [status, setStatus] = useState(r.status);
   const [resolutionDescription, setResolutionDescription] = useState("");
-  const [resolutionPhoto, setResolutionPhoto] = useState("");
+  const [resolutionPhoto, setResolutionPhoto] = useState<File | null>(null);
   const [submittingResolution, setSubmittingResolution] = useState(false);
 
   const statusColors: Record<string, string> = {
@@ -2224,11 +2286,43 @@ function AuthorityReportSheet({
         </p>
 
         <div
-          className="dk-upload-box"
-          style={{ marginBottom: 12 }}
-        >
-          📸 Citizen photo
-        </div>
+  className="dk-upload-box"
+  style={{ marginBottom: 12 }}
+>
+  <div
+    style={{
+      fontSize: 12,
+      color: "#94a3b8",
+      marginBottom: 8,
+    }}
+  >
+    📷 Citizen photo
+  </div>
+
+  {r.complaint_photo ? (
+    <img
+      src={`${API_BASE_URL}/uploads/${r.complaint_photo}`}
+      alt="Citizen submitted photo"
+      style={{
+        width: "100%",
+        maxHeight: 300,
+        objectFit: "cover",
+        borderRadius: 12,
+        display: "block",
+      }}
+    />
+  ) : (
+    <div
+      style={{
+        padding: 20,
+        textAlign: "center",
+        color: "#94a3b8",
+      }}
+    >
+      📷 No citizen photo uploaded
+    </div>
+  )}
+</div>
 
         <p
           style={{
@@ -2312,7 +2406,10 @@ function AuthorityReportSheet({
         textAlign: "center",
       }}
     >
-      <label style={{ cursor: "pointer", display: "block" }}>
+      <label
+  htmlFor="resolution-photo"
+  style={{ cursor: "pointer", display: "block" }}
+>
         📷{" "}
         {resolutionPhoto
           ? `Photo selected: ${resolutionPhoto}`
@@ -2320,14 +2417,19 @@ function AuthorityReportSheet({
 
         <input
           type="file"
+          id="resolution-photo"
           accept="image/*"
-          style={{ display: "none" }}
+          style={{
+  display: "block",
+  width: "100%",
+  marginTop: 10,
+}}
           onChange={e => {
             const file = e.target.files?.[0];
 
             if (!file) return;
 
-            setResolutionPhoto(file.name);
+            setResolutionPhoto(file);
           }}
         />
       </label>
@@ -2365,19 +2467,21 @@ function AuthorityReportSheet({
         setSubmittingResolution(true);
 
         try {
-          const response = await fetch(
-            `${API_BASE_URL}/complaints/${r.complaint_id}/resolution`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                description: resolutionDescription,
-                photo: resolutionPhoto,
-              }),
-            }
-          );
+          const formData = new FormData();
+
+formData.append("description", resolutionDescription);
+
+if (resolutionPhoto) {
+  formData.append("photo", resolutionPhoto);
+}
+
+const response = await fetch(
+  `${API_BASE_URL}/complaints/${r.complaint_id}/resolution`,
+  {
+    method: "PUT",
+    body: formData,
+  }
+);
 
           const data = await response.json();
 
@@ -2519,8 +2623,21 @@ function Authority() {
   const [tab, setTab] = useState<"home" | "queue" | "map" | "ward" | "profile">("home");
   const [notifOpen, setNotifOpen] = useState(false);
   const [detailReport, setDetailReport] = useState<AuthReport | null>(null);
+  const [authorityStatus, setAuthorityStatus] = useState("");
+const [resolutionDescription, setResolutionDescription] = useState("");
+const [resolutionPhoto, setResolutionPhoto] = useState<File | null>(null);
+const [savingStatus, setSavingStatus] = useState(false);
+const [savingResolution, setSavingResolution] = useState(false);
+useEffect(() => {
+  if (detailReport) {
+    setAuthorityStatus(detailReport.status || "");
+    setResolutionDescription(detailReport.resolution_description || "");
+    setResolutionPhoto(null);
+  }
+}, [detailReport]);
   const [queueFilter, setQueueFilter] = useState<"All" | "Critical" | "High Priority" | "Pending" | "Resolved">("All");
   const [backendComplaints, setBackendComplaints] = useState<any[]>([]);
+  
   async function loadComplaints() {
   try {
     const response = await fetch(`${API_BASE_URL}/complaints`);
@@ -2528,6 +2645,109 @@ function Authority() {
     setBackendComplaints(data);
   } catch (error) {
     console.error("Error loading complaints:", error);
+  }
+}
+async function saveAuthorityStatus() {
+  if (!detailReport || !authorityStatus) return;
+
+  setSavingStatus(true);
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/complaints/${detailReport.complaint_id}/status?status=${encodeURIComponent(authorityStatus)}`,
+      {
+        method: "PUT",
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.detail || "Could not update status.");
+      return;
+    }
+
+    setDetailReport({
+      ...detailReport,
+      status: authorityStatus,
+    });
+
+    setBackendComplaints((previous) =>
+      previous.map((r) =>
+        r.complaint_id === detailReport.complaint_id
+          ? { ...r, status: authorityStatus }
+          : r
+      )
+    );
+
+    alert("Status updated successfully.");
+  } catch (error) {
+    console.error("Error updating status:", error);
+    alert("Could not update status.");
+  } finally {
+    setSavingStatus(false);
+  }
+}
+
+async function saveResolution() {
+  if (!detailReport) return;
+
+  setSavingResolution(true);
+
+  try {
+    const formData = new FormData();
+
+    formData.append("description", resolutionDescription);
+
+    if (resolutionPhoto) {
+      formData.append("photo", resolutionPhoto);
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/complaints/${detailReport.complaint_id}/resolution`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.detail || "Could not save resolution.");
+      return;
+    }
+
+    setDetailReport({
+      ...detailReport,
+      resolution_description: resolutionDescription,
+      resolution_photo: resolutionPhoto
+        ? resolutionPhoto.name
+        : detailReport.resolution_photo,
+      status: "Resolution Submitted",
+    });
+
+    setBackendComplaints((previous) =>
+      previous.map((r) =>
+        r.complaint_id === detailReport.complaint_id
+          ? {
+              ...r,
+              status: "Resolution Submitted",
+              resolution_description: resolutionDescription,
+              resolution_photo: resolutionPhoto
+                ? resolutionPhoto.name
+                : r.resolution_photo,
+            }
+          : r
+      )
+    );
+
+    alert("Resolution saved successfully.");
+  } catch (error) {
+    console.error("Error saving resolution:", error);
+    alert("Could not save resolution.");
+  } finally {
+    setSavingResolution(false);
   }
 }
   useEffect(() => {

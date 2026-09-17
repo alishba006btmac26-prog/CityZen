@@ -1,4 +1,5 @@
-from fastapi import FastAPI, File, UploadFile, Form
+from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
@@ -6,7 +7,9 @@ from pathlib import Path
 UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
 
+
 app = FastAPI()
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # Connect to the CityZen database
 DB_PATH = Path(__file__).resolve().parent.parent / "cityzen.db"
@@ -35,10 +38,16 @@ CREATE TABLE IF NOT EXISTS complaints (
     description TEXT,
     location TEXT,
     status TEXT,
+    complaint_photo TEXT,
     resolution_description TEXT,
     resolution_photo TEXT
 )
 """)
+try:
+    cursor.execute("ALTER TABLE complaints ADD COLUMN complaint_photo TEXT")
+    conn.commit()
+except sqlite3.OperationalError:
+    pass
 
 conn.commit()
 # Seed demo complaints when running on a fresh deployment
@@ -50,8 +59,8 @@ if complaint_count == 0:
         """
         INSERT INTO complaints
         (category, description, location, status,
-         resolution_description, resolution_photo)
-        VALUES (?, ?, ?, ?, ?, ?)
+         complaint_photo, resolution_description, resolution_photo)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
         [
             (
@@ -61,6 +70,7 @@ if complaint_count == 0:
                 "Reported",
                 None,
                 None,
+                None,
             ),
             (
                 "Pothole",
@@ -69,17 +79,20 @@ if complaint_count == 0:
                 "Reported",
                 None,
                 None,
+                None,
             ),
             (
                 "Roads",
                 "pothole in road",
                 "Vasant Vihar, Delhi",
                 "Resolution Submitted",
+                None,
                 "Pothole repaired and road surface restored",
                 "resolution-photo-demo.jpg",
             ),
         ],
     )
+
     conn.commit()
 try:
     cursor.execute("ALTER TABLE complaints ADD COLUMN resolution_description TEXT")
@@ -116,7 +129,7 @@ async def create_complaint(
     cursor.execute(
         """
         INSERT INTO complaints
-        (category, description, location, status, resolution_photo)
+        (category, description, location, status, complaint_photo)
         VALUES (?, ?, ?, ?, ?)
         """,
         (
@@ -147,9 +160,9 @@ def get_complaint(complaint_id: str):
 
     cursor.execute(
         """
-        SELECT id, category, description, location, status,
-               resolution_description, resolution_photo
-        FROM complaints
+SELECT id, category, description, location, status,
+       complaint_photo, resolution_description, resolution_photo
+FROM complaints
         WHERE id = ?
         """,
         (complaint_number,)
@@ -166,20 +179,28 @@ def get_complaint(complaint_id: str):
         "description": complaint[2],
         "location": complaint[3],
         "status": complaint[4],
-        "resolution_description": complaint[5],
-        "resolution_photo": complaint[6]
+        "resolution_description": complaint[6],
+        "resolution_photo": complaint[7]
     }
 
 @app.get("/complaints")
 def get_complaints():
 
     cursor.execute(
-        """
-        SELECT id, category, description, location, status
-        FROM complaints
-        ORDER BY id DESC
-        """
-    )
+    """
+    SELECT
+        id,
+        category,
+        description,
+        location,
+        status,
+        complaint_photo,
+        resolution_description,
+        resolution_photo
+    FROM complaints
+    ORDER BY id DESC
+    """
+)
 
     complaints = cursor.fetchall()
 
@@ -191,7 +212,10 @@ def get_complaints():
             "category": complaint[1],
             "description": complaint[2],
             "location": complaint[3],
-            "status": complaint[4]
+            "status": complaint[4],
+            "complaint_photo": complaint[5],
+            "resolution_description": complaint[6],
+            "resolution_photo": complaint[7]
         })
 
     return result
@@ -226,9 +250,21 @@ class Resolution(BaseModel):
 
 
 @app.put("/complaints/{complaint_id}/resolution")
-def submit_resolution(complaint_id: str, resolution: Resolution):
-
+async def submit_resolution(
+    complaint_id: str,
+    description: str = Form(...),
+    photo: UploadFile | None = File(None),
+):
     complaint_number = int(complaint_id.split("-")[-1])
+
+    photo_filename = None
+
+    if photo:
+        photo_filename = photo.filename
+        photo_path = UPLOAD_DIR / photo.filename
+
+        with open(photo_path, "wb") as buffer:
+            buffer.write(await photo.read())
 
     cursor.execute(
         """
@@ -239,11 +275,11 @@ def submit_resolution(complaint_id: str, resolution: Resolution):
         WHERE id = ?
         """,
         (
-            resolution.description,
-            resolution.photo,
+            description,
+            photo_filename,
             "Resolution Submitted",
-            complaint_number
-        )
+            complaint_number,
+        ),
     )
 
     conn.commit()
@@ -254,5 +290,6 @@ def submit_resolution(complaint_id: str, resolution: Resolution):
     return {
         "complaint_id": complaint_id,
         "status": "Resolution Submitted",
-        "message": "Resolution evidence submitted successfully"
+        "message": "Resolution evidence submitted successfully",
+        "resolution_photo": photo_filename,
     }
