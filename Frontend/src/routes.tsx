@@ -502,18 +502,20 @@ function ReportModal({ open, close }: { open: boolean; close: () => void }) {
 
 async function submit() {
   try {
-    const response = await fetch(`${API_BASE_URL}/complaints`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-  category: domain,
-  description: note,
-  location: "Vasant Vihar, Delhi",
-  photo: photo ? photo.name : null,
-}),
-    });
+    const formData = new FormData();
+
+formData.append("category", domain);
+formData.append("description", note);
+formData.append("location", "Vasant Vihar, Delhi");
+
+if (photo) {
+  formData.append("photo", photo);
+}
+
+const response = await fetch(`${API_BASE_URL}/complaints`, {
+  method: "POST",
+  body: formData,
+});
 
     const data = await response.json();
 

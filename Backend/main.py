@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sqlite3
 from pathlib import Path
+UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
+UPLOAD_DIR.mkdir(exist_ok=True)
 
 app = FastAPI()
 
@@ -96,30 +98,44 @@ class Complaint(BaseModel):
 
 
 @app.post("/complaints")
-def create_complaint(complaint: Complaint):
+async def create_complaint(
+    category: str = Form(...),
+    description: str = Form(...),
+    location: str = Form(...),
+    photo: UploadFile | None = File(None),
+):
+    photo_filename = None
+
+    if photo:
+        photo_filename = photo.filename
+        photo_path = UPLOAD_DIR / photo.filename
+
+        with open(photo_path, "wb") as buffer:
+            buffer.write(await photo.read())
 
     cursor.execute(
         """
-        INSERT INTO complaints (category, description, location, status)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO complaints
+        (category, description, location, status, resolution_photo)
+        VALUES (?, ?, ?, ?, ?)
         """,
         (
-            complaint.category,
-            complaint.description,
-            complaint.location,
-            "Reported"
-        )
+            category,
+            description,
+            location,
+            "Reported",
+            photo_filename,
+        ),
     )
 
     conn.commit()
 
-    complaint_number = cursor.lastrowid
-
-    complaint_id = f"CZ-2026-{complaint_number:04d}"
+    complaint_id = cursor.lastrowid
 
     return {
-        "complaint_id": complaint_id,
-        "status": "Reported"
+        "message": "Complaint registered successfully",
+        "complaint_id": f"CZ-2026-{complaint_id:04d}",
+        "photo": photo_filename,
     }
 
 @app.get("/complaints/{complaint_id}")
