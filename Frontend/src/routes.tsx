@@ -480,6 +480,7 @@ function ReportModal({ open, close }: { open: boolean; close: () => void }) {
   const [dupUpvoted, setDupUpvoted] = useState(false);
   const [bypassDup, setBypassDup] = useState(false);
   const [complaintId, setComplaintId] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
 
   function handleSetLocation() {
     setLocationSet(true);
@@ -645,6 +646,38 @@ async function submit() {
             <DuplicateCard domain={domain} onUpvote={handleUpvoteDup} onContinue={() => { setDupDetected(false); setBypassDup(true); }} />
           )}
           <textarea className="dk-field dk-textarea" placeholder="Describe the problem briefly…" value={note} onChange={e => setNote(e.target.value)} />
+          <div style={{ marginBottom: 12 }}>
+  <label
+    style={{
+      display: "block",
+      marginBottom: 6,
+      fontSize: 12,
+      color: "#94a3b8",
+    }}
+  >
+    📷 Add Photo (optional)
+  </label>
+
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+    style={{
+      width: "100%",
+      padding: "10px",
+      borderRadius: 10,
+      border: "1px solid #334155",
+      background: "#111827",
+      color: "#cbd5e1",
+    }}
+  />
+
+  {photo && (
+    <small style={{ color: "#4ade80", display: "block", marginTop: 6 }}>
+      ✓ {photo.name}
+    </small>
+  )}
+</div>
           <div className="dk-authority-tag" style={{ marginBottom: 12 }}>
             <span style={{ fontSize: 10, color: "#4ade80" }}>@ Auto-tagged Authority</span>
             <b style={{ color: "#f1f5f9" }}>{authority.name}</b>
