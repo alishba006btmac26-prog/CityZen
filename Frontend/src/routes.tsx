@@ -339,6 +339,18 @@ function DarkCityMap({ height = 240 }: { height?: number }) {
 
 /* ─── City Status Card ─── */
 function CityStatusScreen({ close }: { close: () => void }) {
+    const [cityReports, setCityReports] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/complaints`)
+      .then((response) => response.json())
+      .then((data) => {
+        setCityReports(data);
+      })
+      .catch((error) => {
+        console.error("Error loading city status:", error);
+      });
+  }, []);
   return (
     <div className="modal-backdrop" onClick={close}>
       <section className="dark-sheet" style={{ maxHeight: "92vh", paddingBottom: 24 }} onClick={e => e.stopPropagation()}>
@@ -348,35 +360,97 @@ function CityStatusScreen({ close }: { close: () => void }) {
         <h2 style={{ margin: "6px 0 8px", color: "#f1f5f9", fontSize: 17 }}>Delhi South Analytics</h2>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
           {[
-            { label: "Total Reported", value: "342", color: "#60a5fa" },
-            { label: "Resolved Today", value: "28", color: "#4ade80" },
-            { label: "Pending Action", value: "38", color: "#FFC107" },
-            { label: "Resolution Rate", value: "94%", color: "#a78bfa" },
-          ].map((s, i) => (
+  {
+    label: "Total Reported",
+    value: cityReports.length.toString(),
+    color: "#60a5fa",
+  },
+  {
+    label: "Resolved Today",
+    value: cityReports
+      .filter((r) => r.status === "Resolved")
+      .length
+      .toString(),
+    color: "#4ade80",
+  },
+  {
+    label: "Pending Action",
+    value: cityReports
+      .filter((r) => r.status !== "Resolved")
+      .length
+      .toString(),
+    color: "#FFC107",
+  },
+  {
+    label: "Resolution Rate",
+    value:
+      cityReports.length > 0
+        ? `${Math.round(
+            (cityReports.filter((r) => r.status === "Resolved").length /
+              cityReports.length) *
+              100
+          )}%`
+        : "0%",
+    color: "#a78bfa",
+  },
+].map((s, i) => (
             <div key={i} style={{ background: "#1C2128", border: "1px solid #2d3748", borderRadius: 12, padding: "12px 14px" }}>
               <b style={{ color: s.color, fontSize: 20, display: "block" }}>{s.value}</b>
               <span style={{ fontSize: 10, color: "#64748b" }}>{s.label}</span>
             </div>
           ))}
         </div>
-        <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", marginBottom: 10 }}>Domain Breakdown</b>
-        {[
-          { label: "Garbage", pct: 32, color: "#4ade80" },
-          { label: "Roads", pct: 26, color: "#FFC107" },
-          { label: "Streetlights", pct: 18, color: "#60a5fa" },
-          { label: "Sewage", pct: 14, color: "#f87171" },
-          { label: "Water", pct: 10, color: "#38bdf8" },
-        ].map((b, i) => (
-          <div key={i} style={{ marginBottom: 8 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 3 }}>
-              <span style={{ color: "#94a3b8" }}>{b.label}</span>
-              <span style={{ color: "#64748b" }}>{b.pct}%</span>
-            </div>
-            <div style={{ height: 8, background: "#1C2128", borderRadius: 4, overflow: "hidden" }}>
-              <div style={{ width: `${b.pct}%`, height: "100%", background: b.color, borderRadius: 4 }} />
-            </div>
-          </div>
-        ))}
+        <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", marginBottom: 10 }}>
+  Domain Breakdown
+</b>
+
+{[
+  { label: "Garbage", color: "#4ade80" },
+  { label: "Roads", color: "#FFC107" },
+  { label: "Streetlights", color: "#60a5fa" },
+  { label: "Sewage", color: "#f87171" },
+  { label: "Water", color: "#38bdf8" },
+].map((b, i) => {
+  const count = cityReports.filter((r) => r.category === b.label).length;
+  const pct =
+    cityReports.length > 0
+      ? Math.round((count / cityReports.length) * 100)
+      : 0;
+
+  return (
+    <div key={i} style={{ marginBottom: 8 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: 11,
+          marginBottom: 3,
+        }}
+      >
+        <span style={{ color: "#94a3b8" }}>{b.label}</span>
+        <span style={{ color: "#64748b" }}>{pct}%</span>
+      </div>
+
+      <div
+        style={{
+          height: 8,
+          background: "#1C2128",
+          borderRadius: 4,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${pct}%`,
+            height: "100%",
+            background: b.color,
+            borderRadius: 4,
+          }}
+        />
+      </div>
+    </div>
+  );
+})}
         <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", margin: "16px 0 10px" }}>Emergency &amp; Trending</b>
         {[
           { txt: "Major Water Pipeline Leakage — Sector 4", sev: "#f87171", id: "CZ-2026-9901" },
@@ -869,13 +943,14 @@ useEffect(() => {
     .then((response) => response.json())
     .then((data) => {
       setBackendReports(
-        data.map((r: any) => ({
-          id: r.complaint_id,
-          type: r.category,
-          loc: r.location,
-          status: r.status,
-        }))
-      );
+  data.map((r: any) => ({
+    id: r.complaint_id,
+    type: r.category,
+    loc: r.location,
+    status: r.status,
+    description: r.description,
+  }))
+);
     })
     .catch((error) => {
       console.error("Error loading reports:", error);
@@ -3060,7 +3135,34 @@ async function saveResolution() {
             <div><span style={{ fontSize: 9, color: "#64748b", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block" }}>CITYZEN AUTHORITY</span><h1 style={{ fontSize: 20, color: "#f1f5f9" }}>Command Dashboard</h1></div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
-            {[["342", "Complaints", "#60a5fa"], ["287", "Resolved", "#4ade80"], ["38", "Pending", "#FFC107"], ["17", "Overdue", "#f87171"]].map(([v, l, c]) => (
+            {[
+  [
+    backendComplaints.length.toString(),
+    "Complaints",
+    "#60a5fa",
+  ],
+  [
+    backendComplaints
+      .filter((r) => r.status === "Resolved")
+      .length
+      .toString(),
+    "Resolved",
+    "#4ade80",
+  ],
+  [
+    backendComplaints
+      .filter((r) => r.status !== "Resolved")
+      .length
+      .toString(),
+    "Pending",
+    "#FFC107",
+  ],
+  [
+    "N/A",
+    "Overdue",
+    "#f87171",
+  ],
+].map(([v, l, c]) => (
               <div key={l} style={{ background: "#1C2128", border: `1px solid ${c}30`, borderRadius: 12, padding: "12px 14px", borderTop: `3px solid ${c}` }}>
                 <b style={{ color: c, fontSize: 22, display: "block" }}>{v}</b>
                 <span style={{ fontSize: 11, color: "#64748b" }}>{l}</span>
@@ -3068,22 +3170,131 @@ async function saveResolution() {
             ))}
           </div>
           <div style={{ background: "#2d1f0030", border: "1px solid #FFC10740", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
-            <span style={{ fontSize: 9, color: "#FFC107", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block", marginBottom: 8 }}>NEEDS ATTENTION</span>
-            {["3 resolutions challenged by citizens", "5 recurring infrastructure problems", "12 overdue reports past SLA"].map((t, i) => (
-              <div key={i} style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>⚠ {t}</div>
-            ))}
-          </div>
+  <span style={{ fontSize: 9, color: "#FFC107", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block", marginBottom: 8 }}>
+    NEEDS ATTENTION
+  </span>
+
+  <div style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>
+    ⚠ {backendComplaints.filter((r) => r.status === "Challenged").length} resolutions challenged by citizens
+  </div>
+
+  <div style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>
+  ⚠ {
+    [
+      "Garbage",
+      "Roads",
+      "Streetlights",
+      "Sewage",
+      "Water",
+    ].filter((group) => {
+      const count = backendComplaints.filter((r) => {
+        const category = (r.category || "").toLowerCase();
+
+        if (group === "Roads") {
+          return category === "roads" || category === "pothole";
+        }
+
+        if (group === "Sewage") {
+          return category === "sewage" || category === "sanitation";
+        }
+
+        if (group === "Streetlights") {
+          return category === "streetlights" || category === "streetlight";
+        }
+
+        if (group === "Garbage") {
+          return category === "garbage" || category === "garbage pile";
+        }
+
+        if (group === "Water") {
+          return category === "water";
+        }
+
+        return false;
+      }).length;
+
+      return count >= 2;
+    }).length
+  } recurring infrastructure problems
+</div>
+
+  <div style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>
+    ⚠ {backendComplaints.filter((r) => r.status === "Overdue").length} overdue reports past SLA
+  </div>
+</div>
           <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", marginBottom: 10 }}>Domain Analytics</b>
-          {[["Garbage", 32, "#4ade80"], ["Roads", 26, "#FFC107"], ["Streetlights", 18, "#60a5fa"], ["Sewage", 14, "#f87171"]].map(([l, p, c]) => (
-            <div key={String(l)} style={{ marginBottom: 8 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 3 }}>
-                <span style={{ color: "#94a3b8" }}>{l}</span><span style={{ color: "#334155" }}>{p}%</span>
-              </div>
-              <div style={{ height: 8, background: "#1C2128", borderRadius: 4, overflow: "hidden" }}>
-                <div style={{ width: `${p}%`, height: "100%", background: c as string, borderRadius: 4 }} />
-              </div>
-            </div>
-          ))}
+          {[
+  { label: "Garbage", color: "#4ade80" },
+  { label: "Roads", color: "#FFC107" },
+  { label: "Streetlights", color: "#60a5fa" },
+  { label: "Sewage", color: "#f87171" },
+  { label: "Water", color: "#38bdf8" },
+].map((b, i) => {
+  const count = backendComplaints.filter((r) => {
+  const category = (r.category || "").toLowerCase();
+
+  if (b.label === "Roads") {
+    return category === "roads" || category === "pothole";
+  }
+
+  if (b.label === "Sewage") {
+    return category === "sewage" || category === "sanitation";
+  }
+
+  if (b.label === "Water") {
+    return category === "water";
+  }
+
+  if (b.label === "Streetlights") {
+    return category === "streetlights" || category === "streetlight";
+  }
+
+  if (b.label === "Garbage") {
+    return category === "garbage" || category === "garbage pile";
+  }
+
+  return false;
+}).length;
+
+  const pct =
+    backendComplaints.length > 0
+      ? Math.round((count / backendComplaints.length) * 100)
+      : 0;
+
+  return (
+    <div key={i} style={{ marginBottom: 8 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: 11,
+          marginBottom: 3,
+        }}
+      >
+        <span style={{ color: "#94a3b8" }}>{b.label}</span>
+        <span style={{ color: "#334155" }}>{pct}%</span>
+      </div>
+
+      <div
+        style={{
+          height: 8,
+          background: "#1C2128",
+          borderRadius: 4,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${pct}%`,
+            height: "100%",
+            background: b.color,
+            borderRadius: 4,
+          }}
+        />
+      </div>
+    </div>
+  );
+})}
           <PhotoCarousel />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "18px 0 10px" }}>
             <b style={{ fontSize: 13, color: "#f1f5f9" }}>Recent Reports</b>
