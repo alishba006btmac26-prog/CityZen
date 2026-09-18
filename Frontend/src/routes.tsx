@@ -988,6 +988,64 @@ useEffect(() => {
             >
               {trackedComplaint.status}
             </div>
+            {trackedComplaint.resolution_description && (
+  <div
+    style={{
+      marginTop: 16,
+      padding: 14,
+      borderRadius: 12,
+      background: "#111827",
+      border: "1px solid #2d3748",
+    }}
+  >
+    <div
+      style={{
+        fontSize: 13,
+        fontWeight: 700,
+        color: "#4ade80",
+        marginBottom: 8,
+      }}
+    >
+      ✓ Resolution Submitted
+    </div>
+
+    <div
+      style={{
+        fontSize: 12,
+        color: "#cbd5e1",
+        marginBottom: 12,
+      }}
+    >
+      {trackedComplaint.resolution_description}
+    </div>
+
+    {trackedComplaint.resolution_photo && (
+      <div>
+        <div
+          style={{
+            fontSize: 12,
+            color: "#94a3b8",
+            marginBottom: 8,
+          }}
+        >
+          📷 Resolution photo
+        </div>
+
+        <img
+          src={`http://127.0.0.1:8000/uploads/${trackedComplaint.resolution_photo}`}
+          alt="Resolution evidence"
+          style={{
+            width: "100%",
+            maxHeight: 300,
+            objectFit: "cover",
+            borderRadius: 12,
+            display: "block",
+          }}
+        />
+      </div>
+    )}
+  </div>
+)}
           </div>
         )}
 
@@ -1205,25 +1263,162 @@ function VerifyComplaintListModal({
 function ResolutionVerifyModal({ open, close }: { open: boolean; close: () => void }) {
   const [step, setStep] = useState<"verify" | "challenge" | "done" | "reopened">("verify");
   const [reason, setReason] = useState("");
-  function handleDone() { setStep("verify"); close(); }
+  const [challengePhoto, setChallengePhoto] = useState<File | null>(null);
+  
+
+useEffect(() => {
+  if (!open) return;
+
+  fetch(`${API_BASE_URL}/complaints`)
+    .then((response) => response.json())
+    .then((data) => {
+      const reports = data
+        .filter(
+  (r: any) =>
+    r.status === "Resolution Submitted" ||
+    r.status === "Resolved"
+)
+        .map((r: any) => ({
+  id: r.complaint_id,
+  type: r.category,
+  location: r.location,
+  completed:
+    r.resolution_description || "Resolution evidence submitted",
+  complaint_photo: r.complaint_photo,
+  resolution_photo: r.resolution_photo,
+}));
+
+      setVerifyReports(reports);
+    })
+    .catch((error) => {
+      console.error("Error loading verification reports:", error);
+    });
+}, [open]);
+  function handleDone() {
+  setStep("verify");
+  close();
+  onNext();
+}
+async function handleChallengeSubmit() {
+  if (!currentReport) return;
+
+  try {
+    const formData = new FormData();
+
+    formData.append("reason", reason);
+
+if (challengePhoto) {
+  formData.append("photo", challengePhoto);
+}
+
+    const response = await fetch(
+      `${API_BASE_URL}/complaints/${currentReport.id}/challenge`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to submit challenge");
+    }
+
+    alert("Challenge submitted successfully");
+    setStep("reopened");
+  } catch (error) {
+    console.error("Challenge submission error:", error);
+    alert("Failed to submit challenge");
+  }
+}
+if (!currentReport) {
   return (
+    <Modal open={open} close={close}>
+      <div style={{ padding: 24, textAlign: "center" }}>
+        <h2 style={{ color: "#f1f5f9" }}>
+          No resolutions waiting for verification
+        </h2>
+
+        <p style={{ color: "#64748b", fontSize: 12 }}>
+          There are currently no submitted resolutions to verify.
+        </p>
+
+        <button
+          className="dk-outline-btn"
+          onClick={close}
+          style={{ marginTop: 12 }}
+        >
+          Close
+        </button>
+      </div>
+    </Modal>
+  );
+}  
+return (
     <Modal open={open} close={close}>
       {step === "verify" && (
         <>
-          <span className="eyebrow" style={{ color: "#FFC107" }}>RESOLUTION CHECK · CZ-2026-0001</span>
+          <span className="eyebrow" style={{ color: "#FFC107" }}>RESOLUTION CHECK · {currentReport.id}</span>
           <h2 style={{ color: "#f1f5f9", fontSize: 18, margin: "6px 0 4px" }}>Is this actually fixed?</h2>
-          <p style={{ fontSize: 11, color: "#64748b", marginBottom: 14 }}>Pothole — Outer Ring Rd · Evidence submitted Oct 18</p>
-          <div className="ba-row" style={{ marginBottom: 14 }}>
-            <div className="ba-panel-dark"><span>Before</span></div>
-            <span style={{ color: "#FFC107" }}>→</span>
-            <div className="ba-panel-dark ba-after-dark"><span>After</span></div>
-          </div>
+          <p style={{ fontSize: 11, color: "#64748b", marginBottom: 14 }}><p>
+  {currentReport.type} — {currentReport.location} · Evidence submitted {currentReport.completed}
+</p></p>
+          <div className="ba-row" style={{ marginBottom: 14, alignItems: "center" }}>
+
+  <div className="ba-panel-dark" style={{ overflow: "hidden", padding: 0 }}>
+    {currentReport.complaint_photo ? (
+      <img
+        src={`${API_BASE_URL}/uploads/${currentReport.complaint_photo}`}
+        alt="Before resolution"
+        style={{
+          width: "100%",
+          height: "150px",
+          objectFit: "cover",
+          display: "block",
+        }}
+      />
+    ) : (
+      <span>Before photo unavailable</span>
+    )}
+    <span style={{ display: "block", padding: "6px" }}>Before</span>
+  </div>
+
+  <span style={{ color: "#FFC107", fontSize: 20 }}>→</span>
+
+  <div className="ba-panel-dark ba-after-dark" style={{ overflow: "hidden", padding: 0 }}>
+    {currentReport.resolution_photo ? (
+      <img
+        src={`${API_BASE_URL}/uploads/${currentReport.resolution_photo}`}
+        alt="After resolution"
+        style={{
+          width: "100%",
+          height: "150px",
+          objectFit: "cover",
+          display: "block",
+        }}
+      />
+    ) : (
+      <span>After photo unavailable</span>
+    )}
+    <span style={{ display: "block", padding: "6px" }}>After</span>
+  </div>
+
+</div>
           <div style={{ background: "#1C2128", border: "1px solid #2d3748", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
-            {[["📝", '"Pothole filled with bituminous mix."'], ["📅", "Completed: Oct 18, 2026"], ["📍", "Outer Ring Rd, Vasant Vihar"], ["🏛", "MCD Road Maintenance · AUTH-DEL-012"]].map(([ic, tx]) => (
-              <div key={String(tx)} style={{ display: "flex", gap: 8, padding: "4px 0", fontSize: 11, color: "#94a3b8" }}>
-                <span>{ic}</span><span>{tx}</span>
-              </div>
-            ))}
+            <div
+  style={{
+    display: "flex",
+    gap: 8,
+    padding: "4px 0",
+    fontSize: 11,
+    color: "#94a3b8",
+  }}
+>
+  <span>🛠️</span>
+  <span>{currentReport.completed}</span>
+</div>
+            
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button className="amber-btn" style={{ flex: 1, background: "#063B28", color: "#4ade80", border: "1px solid #4ade8040" }} onClick={() => setStep("done")}>✓ Verify</button>
@@ -1240,8 +1435,32 @@ function ResolutionVerifyModal({ open, close }: { open: boolean; close: () => vo
               <span>{reason === r ? "●" : "○"}</span>{r}
             </button>
           ))}
-          <div className="dk-upload-box" style={{ marginTop: 10 }}>📷 Add photo evidence (optional)</div>
-          <button className="amber-btn" style={{ marginTop: 14, background: "#7f1d1d", color: "#fca5a5" }} onClick={() => setStep("reopened")}>Submit Challenge</button>
+          <label
+  htmlFor="challenge-photo"
+  style={{
+    display: "block",
+    marginTop: 10,
+    padding: 12,
+    border: "1px dashed #666",
+    borderRadius: 8,
+    cursor: "pointer",
+  }}
+>
+  📷 Add photo evidence (optional)
+</label>
+
+<input
+  type="file"
+  id="challenge-photo"
+  accept="image/*"
+  style={{ display: "none" }}
+  onChange={(e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setChallengePhoto(file);
+  }}
+/>
+          <button className="amber-btn" style={{ marginTop: 14, background: "#7f1d1d", color: "#fca5a5" }} onClick={handleChallengeSubmit}>Submit Challenge</button>
           <button style={{ background: "none", border: "none", color: "#64748b", fontSize: 12, marginTop: 8, cursor: "pointer" }} onClick={() => setStep("verify")}>← Back</button>
         </>
       )}
@@ -1340,6 +1559,16 @@ function Home() {
 
       <ReportModal open={reportOpen} close={() => setReportOpen(false)} />
       <TrackModal open={trackerOpen} close={() => setTrackerOpen(false)} />
+      <ResolutionVerifyModal
+  open={verifyOpen}
+  close={() => setVerifyOpen(false)}
+  reportIndex={verifyIndex}
+  onNext={() => {
+    setVerifyIndex((current) => current + 1);
+    setVerifyOpen(true);
+  }}
+/>
+ 
       <VerifyComplaintListModal
   open={verifyListOpen}
   close={() => setVerifyListOpen(false)}
@@ -2725,7 +2954,13 @@ const authorityReports = [
   { id: "RPT-2094", type: "Garbage Pile", icon: "♜", desc: "Uncollected waste for 5 days.", location: "Vasant Kunj, Sector C", status: "Pending", priority: "Medium", dept: "Waste Management", time: "Oct 14 · 9:00 AM", upvotes: 76, delayReason: "Budget approval" as string | null },
 ];
 
-type AuthReport = typeof authorityReports[0];
+type AuthReport = typeof authorityReports[0] & {
+  complaint_id?: string;
+  resolution_description?: string;
+  resolution_photo?: string | null;
+  challenge_photo?: string | null;
+  challenge_description?: string | null;
+};
 
 function AuthorityReportSheet({
   r,
@@ -2738,7 +2973,7 @@ function AuthorityReportSheet({
 }) {
   const [status, setStatus] = useState(r.status);
   const [resolutionDescription, setResolutionDescription] = useState("");
-  const [resolutionPhoto, setResolutionPhoto] = useState("");
+  const [resolutionPhoto, setResolutionPhoto] = useState<File | null>(null);
   const [submittingResolution, setSubmittingResolution] = useState(false);
 
   const statusColors: Record<string, string> = {
@@ -2815,11 +3050,117 @@ function AuthorityReportSheet({
         </p>
 
         <div
-          className="dk-upload-box"
-          style={{ marginBottom: 12 }}
-        >
-          📸 Citizen photo
-        </div>
+  className="dk-upload-box"
+  style={{ marginBottom: 12 }}
+>
+  <div
+    style={{
+      fontSize: 12,
+      color: "#94a3b8",
+      marginBottom: 8,
+    }}
+>    📷 Citizen photo
+  </div>
+  {r.challenge_photo && (
+  <div
+    className="dk-upload-box"
+    style={{ marginBottom: 12 }}
+  >
+    <div
+      style={{
+        fontSize: 12,
+        color: "#f87171",
+        marginBottom: 8,
+}}>
+{r.challenge_description ? (
+  <div style={{ marginBottom: 12 }}>
+    <p style={{ color: "#f87171", fontSize: 12 }}>
+      ⚠️ Challenge reason
+    </p>
+    <p style={{ color: "#ffffff" }}>
+      {r.challenge_description}
+    </p>
+  </div>
+) : null}
+
+
+      
+    
+    
+      ⚠️ Challenge evidence photo
+    </div>
+
+    <img
+      src={`${API_BASE_URL}/uploads/${r.challenge_photo}`}
+      alt="Citizen challenge evidence"
+      style={{
+        width: "100%",
+        maxHeight: 300,
+        objectFit: "cover",
+        borderRadius: 12,
+        display: "block",
+      }}
+    />
+  </div>
+)}
+{r.challenge_description && (
+  <div
+    style={{
+      marginBottom: 12,
+      padding: 12,
+      borderRadius: 10,
+      background: "#2d0f0f",
+      border: "1px solid #f8717140",
+    }}
+  >
+    <div
+      style={{
+        fontSize: 11,
+        color: "#f87171",
+        fontWeight: 700,
+        marginBottom: 6,
+      }}
+    >
+      ⚠️ Citizen Challenge
+    </div>
+
+    <p
+      style={{
+        margin: 0,
+        fontSize: 12,
+        color: "#fca5a5",
+        lineHeight: 1.5,
+      }}
+    >
+      {r.challenge_description}
+    </p>
+  </div>
+)}
+
+  {r.complaint_photo ? (
+    <img
+      src={`${API_BASE_URL}/uploads/${r.complaint_photo}`}
+      alt="Citizen submitted photo"
+      style={{
+        width: "100%",
+        maxHeight: 300,
+        objectFit: "cover",
+        borderRadius: 12,
+        display: "block",
+      }}
+    />
+  ) : (
+    <div
+      style={{
+        padding: 20,
+        textAlign: "center",
+        color: "#94a3b8",
+      }}
+    >
+      📷 No citizen photo uploaded
+    </div>
+  )}
+</div>
 
         <p
           style={{
@@ -2903,7 +3244,10 @@ function AuthorityReportSheet({
         textAlign: "center",
       }}
     >
-      <label style={{ cursor: "pointer", display: "block" }}>
+      <label
+  htmlFor="resolution-photo"
+  style={{ cursor: "pointer", display: "block" }}
+>
         📷{" "}
         {resolutionPhoto
           ? `Photo selected: ${resolutionPhoto}`
@@ -2911,14 +3255,19 @@ function AuthorityReportSheet({
 
         <input
           type="file"
+          id="resolution-photo"
           accept="image/*"
-          style={{ display: "none" }}
+          style={{
+  display: "block",
+  width: "100%",
+  marginTop: 10,
+}}
           onChange={e => {
             const file = e.target.files?.[0];
 
             if (!file) return;
 
-            setResolutionPhoto(file.name);
+            setResolutionPhoto(file);
           }}
         />
       </label>
@@ -2956,19 +3305,21 @@ function AuthorityReportSheet({
         setSubmittingResolution(true);
 
         try {
-          const response = await fetch(
-            `${API_BASE_URL}/complaints/${r.complaint_id}/resolution`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                description: resolutionDescription,
-                photo: resolutionPhoto,
-              }),
-            }
-          );
+          const formData = new FormData();
+
+formData.append("description", resolutionDescription);
+
+if (resolutionPhoto) {
+  formData.append("photo", resolutionPhoto);
+}
+
+const response = await fetch(
+  `${API_BASE_URL}/complaints/${r.complaint_id}/resolution`,
+  {
+    method: "PUT",
+    body: formData,
+  }
+);
 
           const data = await response.json();
 
@@ -3110,8 +3461,21 @@ function Authority() {
   const [tab, setTab] = useState<"home" | "queue" | "map" | "ward" | "profile">("home");
   const [notifOpen, setNotifOpen] = useState(false);
   const [detailReport, setDetailReport] = useState<AuthReport | null>(null);
+  const [authorityStatus, setAuthorityStatus] = useState("");
+const [resolutionDescription, setResolutionDescription] = useState("");
+const [resolutionPhoto, setResolutionPhoto] = useState<File | null>(null);
+const [savingStatus, setSavingStatus] = useState(false);
+const [savingResolution, setSavingResolution] = useState(false);
+useEffect(() => {
+  if (detailReport) {
+    setAuthorityStatus(detailReport.status || "");
+    setResolutionDescription(detailReport.resolution_description || "");
+    setResolutionPhoto(null);
+  }
+}, [detailReport]);
   const [queueFilter, setQueueFilter] = useState<"All" | "Critical" | "High Priority" | "Pending" | "Resolved">("All");
   const [backendComplaints, setBackendComplaints] = useState<any[]>([]);
+  
   async function loadComplaints() {
   try {
     const response = await fetch(`${API_BASE_URL}/complaints`);
@@ -3119,6 +3483,109 @@ function Authority() {
     setBackendComplaints(data);
   } catch (error) {
     console.error("Error loading complaints:", error);
+  }
+}
+async function saveAuthorityStatus() {
+  if (!detailReport || !authorityStatus) return;
+
+  setSavingStatus(true);
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/complaints/${detailReport.complaint_id}/status?status=${encodeURIComponent(authorityStatus)}`,
+      {
+        method: "PUT",
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.detail || "Could not update status.");
+      return;
+    }
+
+    setDetailReport({
+      ...detailReport,
+      status: authorityStatus,
+    });
+
+    setBackendComplaints((previous) =>
+      previous.map((r) =>
+        r.complaint_id === detailReport.complaint_id
+          ? { ...r, status: authorityStatus }
+          : r
+      )
+    );
+
+    alert("Status updated successfully.");
+  } catch (error) {
+    console.error("Error updating status:", error);
+    alert("Could not update status.");
+  } finally {
+    setSavingStatus(false);
+  }
+}
+
+async function saveResolution() {
+  if (!detailReport) return;
+
+  setSavingResolution(true);
+
+  try {
+    const formData = new FormData();
+
+    formData.append("description", resolutionDescription);
+
+    if (resolutionPhoto) {
+      formData.append("photo", resolutionPhoto);
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/complaints/${detailReport.complaint_id}/resolution`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.detail || "Could not save resolution.");
+      return;
+    }
+
+    setDetailReport({
+      ...detailReport,
+      resolution_description: resolutionDescription,
+      resolution_photo: resolutionPhoto
+        ? resolutionPhoto.name
+        : detailReport.resolution_photo,
+      status: "Resolution Submitted",
+    });
+
+    setBackendComplaints((previous) =>
+      previous.map((r) =>
+        r.complaint_id === detailReport.complaint_id
+          ? {
+              ...r,
+              status: "Resolution Submitted",
+              resolution_description: resolutionDescription,
+              resolution_photo: resolutionPhoto
+                ? resolutionPhoto.name
+                : r.resolution_photo,
+            }
+          : r
+      )
+    );
+
+    alert("Resolution saved successfully.");
+  } catch (error) {
+    console.error("Error saving resolution:", error);
+    alert("Could not save resolution.");
+  } finally {
+    setSavingResolution(false);
   }
 }
   useEffect(() => {
