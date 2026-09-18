@@ -2527,9 +2527,8 @@ function CitizenVerify() {
   const [termsOpen, setTermsOpen] = useState(false);
   const [citizenId] = useState(genCitizenId);
 
-async function submit(e: React.FormEvent) {
+function submit(e: React.FormEvent) {
   e.preventDefault();
-  console.log("CREATE ACCOUNT CLICKED");
 
   const cleanedPhone = phone.replace(/\D/g, "");
 
@@ -2540,65 +2539,28 @@ async function submit(e: React.FormEvent) {
 
   setPhoneError("");
 
-  try {
-    console.log("SENDING OTP REQUEST");
-    const response = await fetch("http://127.0.0.1:8000/send-otp", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        mobile_number: cleanedPhone,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      setPhoneError(data.message || "Unable to send OTP.");
-      return;
-    }
-    setDemoOtp(data.otp);
-    setOtpSent(true);
-
-  } catch (error) {
-    console.error("OTP error:", error);
-    setPhoneError("Unable to connect to CityZen server.");
-  }
+  setDemoOtp("123456");
+  setOtp("");
+  setOtpError("");
+  setOtpSent(true);
 }
-async function verifyOTP() {
+function verifyOTP() {
   if (otp.length !== 6) {
     setOtpError("Please enter the 6-digit OTP.");
     return;
   }
 
-  try {
-    const response = await fetch("http://127.0.0.1:8000/verify-otp", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        mobile_number: phone,
-        otp: otp,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      setOtpError(data.message || "Invalid OTP.");
-      return;
-    }
-
-    setOtpError("");
-    setDone(true);
-
-    setTimeout(() => navigate("/app"), 1000);
-  } catch (error) {
-    console.error("OTP verification error:", error);
-    setOtpError("Unable to connect to CityZen server.");
+  if (otp !== demoOtp) {
+    setOtpError("Invalid OTP. Please try again.");
+    return;
   }
+
+  setOtpError("");
+  setDone(true);
+
+  setTimeout(() => {
+    navigate("/app");
+  }, 1000);
 }
 return (
     <>
@@ -2753,6 +2715,142 @@ return (
   </div>
 )}
 <button type="submit" className="amber-btn" style={{ width: "100%", fontSize: 14 }}>Create Account &amp; Enter</button>
+{otpSent && (
+  <div
+    style={{
+      background: "#1C2128",
+      border: "1px solid #4ade8040",
+      borderRadius: 12,
+      padding: "14px 16px",
+      margin: "14px 0",
+    }}
+  >
+    <div
+      style={{
+        color: "#4ade80",
+        fontSize: 12,
+        fontWeight: 700,
+        marginBottom: 6,
+        textAlign: "center",
+      }}
+    >
+      OTP Sent Successfully
+    </div>
+
+    <div
+      style={{
+        color: "#64748b",
+        fontSize: 10,
+        textAlign: "center",
+        marginBottom: 10,
+      }}
+    >
+      Demo OTP: {demoOtp}
+    </div>
+
+    <input
+      type="text"
+      className="dk-field"
+      placeholder="Enter 6-digit OTP"
+      maxLength={6}
+      inputMode="numeric"
+      value={otp}
+      onChange={(e) => {
+        const value = e.target.value
+          .replace(/\D/g, "")
+          .slice(0, 6);
+        setOtp(value);
+        setOtpError("");
+      }}
+    />
+
+    {otpError && (
+      <p style={{ color: "#f87171", fontSize: 10, marginTop: 5 }}>
+        {otpError}
+      </p>
+    )}
+
+    <button
+      type="button"
+      className="amber-btn"
+      style={{
+        width: "100%",
+        fontSize: 14,
+        marginTop: 10,
+      }}
+      onClick={verifyOTP}
+    >
+      Verify OTP
+    </button>
+  </div>
+)}
+{otpSent && (
+  <div
+    style={{
+      background: "#1C2128",
+      border: "1px solid #FFC10740",
+      borderRadius: 12,
+      padding: 14,
+      marginTop: 12,
+    }}
+  >
+    <div
+      style={{
+        fontSize: 11,
+        color: "#4ade80",
+        marginBottom: 8,
+        textAlign: "center",
+      }}
+    >
+      OTP SENT SUCCESSFULLY
+    </div>
+
+    <div
+      style={{
+        fontSize: 18,
+        color: "#FFC107",
+        fontFamily: "DM Mono",
+        fontWeight: 700,
+        textAlign: "center",
+        marginBottom: 10,
+      }}
+    >
+      Test OTP: {demoOtp}
+    </div>
+
+    <input
+      className="dk-field"
+      placeholder="Enter 6-digit OTP"
+      value={otp}
+      maxLength={6}
+      inputMode="numeric"
+      onChange={(e) =>
+        setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+      }
+    />
+
+    {otpError && (
+      <div
+        style={{
+          color: "#f87171",
+          fontSize: 10,
+          marginTop: 5,
+        }}
+      >
+        {otpError}
+      </div>
+    )}
+
+    <button
+      type="button"
+      className="amber-btn"
+      style={{ width: "100%", marginTop: 10 }}
+      onClick={verifyOTP}
+    >
+      Verify OTP
+    </button>
+  </div>
+)}
                 <p style={{ fontSize: 10, color: "#334155", marginTop: 12, textAlign: "center" }}>
                   By signing up you agree to our{" "}
                   <button type="button" onClick={() => setTermsOpen(true)} style={{ background: "none", border: "none", color: "#FFC107", textDecoration: "underline", cursor: "pointer", fontSize: 10 }}>
