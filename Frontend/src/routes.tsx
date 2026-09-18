@@ -2859,15 +2859,10 @@ const response = await fetch(
 }
 
 /* ─── On-site Photo Data ─── */
-const onSitePhotos = [
-  { id: "OS-01", label: "Pothole · Outer Ring Rd", zone: "Vasant Vihar", time: "Today 8:14 AM", severity: "Critical", lat: "28.5612° N", lon: "77.1563° E", aiNote: "Deep void 30cm diameter. Structural risk — immediate repair required.", color: "#f87171", icon: "🛣" },
-  { id: "OS-02", label: "Sewage Overflow · Lane 7", zone: "Lajpat Nagar", time: "Today 9:02 AM", severity: "High", lat: "28.5672° N", lon: "77.2440° E", aiNote: "Overflow across 4m stretch. Health hazard. Sanitation crew needed.", color: "#FFC107", icon: "⊘" },
-  { id: "OS-03", label: "Broken Streetlight · Block C", zone: "Safdarjung", time: "Yesterday 11:30 PM", severity: "Medium", lat: "28.5680° N", lon: "77.2090° E", aiNote: "3 consecutive poles offline. Road visibility reduced by 80%.", color: "#60a5fa", icon: "💡" },
-  { id: "OS-04", label: "Garbage Pile · Market", zone: "Vasant Kunj", time: "Today 6:45 AM", severity: "High", lat: "28.5215° N", lon: "77.1508° E", aiNote: "Estimated 200kg uncollected waste. Vermin activity detected nearby.", color: "#FFC107", icon: "🗑" },
-];
+
 
 /* ─── Photo Carousel with inspection modal ─── */
-function PhotoCarousel() {
+function PhotoCarousel({ onSitePhotos }: { onSitePhotos: any[] }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [inspectPhoto, setInspectPhoto] = useState<typeof onSitePhotos[0] | null>(null);
   const [crewAssigned, setCrewAssigned] = useState(false);
@@ -2878,7 +2873,15 @@ function PhotoCarousel() {
     return () => clearInterval(t);
   }, []);
 
-  const ph = onSitePhotos[activeIdx];
+  if (!onSitePhotos.length) {
+  return (
+    <div style={{ marginBottom: 16, color: "#64748b", fontSize: 12 }}>
+      No on-site photos available.
+    </div>
+  );
+}
+
+const ph = onSitePhotos[activeIdx] ?? onSitePhotos[0];
 
   return (
     <>
@@ -2889,7 +2892,20 @@ function PhotoCarousel() {
         </div>
         <div className="photo-carousel" onClick={() => setInspectPhoto(ph)}>
           <div className="pc-photo" style={{ background: `linear-gradient(160deg,${ph.color}18,#1C2128)`, borderColor: ph.color + "40" }}>
-            <span style={{ fontSize: 42, opacity: .6 }}>{ph.icon}</span>
+            {ph.photo ? (
+  <img
+    src={`${API_BASE_URL}/uploads/${encodeURIComponent(ph.photo)}`}
+    alt={ph.label}
+    style={{
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      display: "block",
+    }}
+  />
+) : (
+  <span style={{ fontSize: 42, opacity: .6 }}>{ph.icon}</span>
+)}
             <div className="pc-overlay">
               <span className="pc-sev" style={{ background: ph.color + "30", color: ph.color, borderColor: ph.color + "60" }}>⚠ {ph.severity}</span>
               <b style={{ color: "#f1f5f9", fontSize: 13 }}>{ph.label}</b>
@@ -2981,6 +2997,69 @@ useEffect(() => {
 }, [detailReport]);
   const [queueFilter, setQueueFilter] = useState<"All" | "Critical" | "High Priority" | "Pending" | "Resolved">("All");
   const [backendComplaints, setBackendComplaints] = useState<any[]>([]);
+  const severityLevels = ["Critical", "High", "Medium", "Low"];
+
+const onSitePhotos = severityLevels.map((severity) => {
+  const complaint = backendComplaints
+    .map((r) => {
+      const category = (r.category || "").toLowerCase();
+
+      let calculatedSeverity = "Low";
+
+      if (
+        category === "sanitation" ||
+        category === "sewage" ||
+        category === "water"
+      ) {
+        calculatedSeverity = "Critical";
+      } else if (
+        category === "roads" ||
+        category === "pothole"
+      ) {
+        calculatedSeverity = "High";
+      } else if (
+        category === "streetlights" ||
+        category === "streetlight"
+      ) {
+        calculatedSeverity = "Medium";
+      }
+
+      return { ...r, calculatedSeverity };
+    })
+    .find((r) => r.calculatedSeverity === severity);
+
+  const icon =
+    severity === "Critical"
+      ? "🚨"
+      : severity === "High"
+      ? "⚠️"
+      : severity === "Medium"
+      ? "🔧"
+      : "ℹ️";
+
+  const color =
+    severity === "Critical"
+      ? "#f87171"
+      : severity === "High"
+      ? "#FFC107"
+      : severity === "Medium"
+      ? "#60a5fa"
+      : "#4ade80";
+
+  return {
+    id: complaint?.complaint_id || `placeholder-${severity}`,
+    label: complaint?.category || "No current reports",
+    zone: complaint?.location || "No current reports",
+    time: complaint ? "Recent" : "—",
+    severity,
+    lat: "",
+    lon: "",
+    aiNote: "",
+    icon,
+    color,
+    photo: complaint?.complaint_photo || null,
+  };
+});
   
   async function loadComplaints() {
   try {
@@ -3295,7 +3374,7 @@ async function saveResolution() {
     </div>
   );
 })}
-          <PhotoCarousel />
+          <PhotoCarousel onSitePhotos={onSitePhotos} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "18px 0 10px" }}>
             <b style={{ fontSize: 13, color: "#f1f5f9" }}>Recent Reports</b>
             <button style={{ background: "none", border: "none", color: "#FFC107", fontSize: 12, cursor: "pointer" }} onClick={() => setTab("queue")}>All →</button>
