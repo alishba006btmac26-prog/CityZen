@@ -2146,13 +2146,23 @@ useEffect(() => {
   ];
 
   const leaderboard = [
-    { rank: 1, cid: "Citizen #DEL-1420", pts: 1420, tier: "🥇" },
-    { rank: 2, cid: "Citizen #DEL-2281", pts: 1105, tier: "🥈" },
-    { rank: 3, cid: "Citizen #DEL-8834", pts: 982, tier: "🥉" },
-    { rank: 4, cid: "Citizen #DEL-4412", pts: 891, tier: "" },
-    { rank: 5, cid: "Citizen #DEL-7701", pts: 840, tier: "" },
-  ];
-
+  { cid: "Citizen #DEL-1420", pts: 1420 },
+  { cid: "Citizen #DEL-2281", pts: 1105 },
+  { cid: "You", pts: civicPoints },
+  { cid: "Citizen #DEL-8834", pts: 982 },
+  { cid: "Citizen #DEL-4412", pts: 891 },
+  { cid: "Citizen #DEL-7701", pts: 840 },
+]
+  .sort((a, b) => b.pts - a.pts)
+  .map((l, i) => ({
+    ...l,
+    rank: i + 1,
+    tier:
+      i === 0 ? "🥇" :
+      i === 1 ? "🥈" :
+      i === 2 ? "🥉" :
+      "",
+  }));
   return (
   <div className="screen dk-screen" style={{ padding: 0 }}>
     {/* Profile Header */}
