@@ -4,6 +4,16 @@ import { createBrowserRouter, NavLink, Outlet, useNavigate } from "react-router"
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 /* ─── Domain → Authority ─── */
+function addCivicPoints(points: number) {
+  const current = Number(
+    localStorage.getItem("cityzen_civic_points") || "1450"
+  );
+
+  const updated = current + points;
+
+  localStorage.setItem("cityzen_civic_points", updated.toString());
+  window.dispatchEvent(new Event("civicPointsUpdated"));
+}
 const domainAuthority: Record<string, { name: string; id: string; dept: string }> = {
   "Roads":       { name: "Ravi Kumar",   id: "AUTH-DEL-012", dept: "Road Maintenance Dept" },
   "Sanitation":  { name: "Priya Verma",  id: "AUTH-DEL-034", dept: "Sanitation Department" },
@@ -340,6 +350,18 @@ function DarkCityMap({ height = 240 }: { height?: number }) {
 
 /* ─── City Status Card ─── */
 function CityStatusScreen({ close }: { close: () => void }) {
+    const [cityReports, setCityReports] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/complaints`)
+      .then((response) => response.json())
+      .then((data) => {
+        setCityReports(data);
+      })
+      .catch((error) => {
+        console.error("Error loading city status:", error);
+      });
+  }, []);
   return (
     <div className="modal-backdrop" onClick={close}>
       <section className="dark-sheet" style={{ maxHeight: "92vh", paddingBottom: 24 }} onClick={e => e.stopPropagation()}>
@@ -349,35 +371,97 @@ function CityStatusScreen({ close }: { close: () => void }) {
         <h2 style={{ margin: "6px 0 8px", color: "#f1f5f9", fontSize: 17 }}>Delhi South Analytics</h2>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
           {[
-            { label: "Total Reported", value: "342", color: "#60a5fa" },
-            { label: "Resolved Today", value: "28", color: "#4ade80" },
-            { label: "Pending Action", value: "38", color: "#FFC107" },
-            { label: "Resolution Rate", value: "94%", color: "#a78bfa" },
-          ].map((s, i) => (
+  {
+    label: "Total Reported",
+    value: cityReports.length.toString(),
+    color: "#60a5fa",
+  },
+  {
+    label: "Resolved Today",
+    value: cityReports
+      .filter((r) => r.status === "Resolved")
+      .length
+      .toString(),
+    color: "#4ade80",
+  },
+  {
+    label: "Pending Action",
+    value: cityReports
+      .filter((r) => r.status !== "Resolved")
+      .length
+      .toString(),
+    color: "#FFC107",
+  },
+  {
+    label: "Resolution Rate",
+    value:
+      cityReports.length > 0
+        ? `${Math.round(
+            (cityReports.filter((r) => r.status === "Resolved").length /
+              cityReports.length) *
+              100
+          )}%`
+        : "0%",
+    color: "#a78bfa",
+  },
+].map((s, i) => (
             <div key={i} style={{ background: "#1C2128", border: "1px solid #2d3748", borderRadius: 12, padding: "12px 14px" }}>
               <b style={{ color: s.color, fontSize: 20, display: "block" }}>{s.value}</b>
               <span style={{ fontSize: 10, color: "#64748b" }}>{s.label}</span>
             </div>
           ))}
         </div>
-        <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", marginBottom: 10 }}>Domain Breakdown</b>
-        {[
-          { label: "Garbage", pct: 32, color: "#4ade80" },
-          { label: "Roads", pct: 26, color: "#FFC107" },
-          { label: "Streetlights", pct: 18, color: "#60a5fa" },
-          { label: "Sewage", pct: 14, color: "#f87171" },
-          { label: "Water", pct: 10, color: "#38bdf8" },
-        ].map((b, i) => (
-          <div key={i} style={{ marginBottom: 8 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 3 }}>
-              <span style={{ color: "#94a3b8" }}>{b.label}</span>
-              <span style={{ color: "#64748b" }}>{b.pct}%</span>
-            </div>
-            <div style={{ height: 8, background: "#1C2128", borderRadius: 4, overflow: "hidden" }}>
-              <div style={{ width: `${b.pct}%`, height: "100%", background: b.color, borderRadius: 4 }} />
-            </div>
-          </div>
-        ))}
+        <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", marginBottom: 10 }}>
+  Domain Breakdown
+</b>
+
+{[
+  { label: "Garbage", color: "#4ade80" },
+  { label: "Roads", color: "#FFC107" },
+  { label: "Streetlights", color: "#60a5fa" },
+  { label: "Sewage", color: "#f87171" },
+  { label: "Water", color: "#38bdf8" },
+].map((b, i) => {
+  const count = cityReports.filter((r) => r.category === b.label).length;
+  const pct =
+    cityReports.length > 0
+      ? Math.round((count / cityReports.length) * 100)
+      : 0;
+
+  return (
+    <div key={i} style={{ marginBottom: 8 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: 11,
+          marginBottom: 3,
+        }}
+      >
+        <span style={{ color: "#94a3b8" }}>{b.label}</span>
+        <span style={{ color: "#64748b" }}>{pct}%</span>
+      </div>
+
+      <div
+        style={{
+          height: 8,
+          background: "#1C2128",
+          borderRadius: 4,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${pct}%`,
+            height: "100%",
+            background: b.color,
+            borderRadius: 4,
+          }}
+        />
+      </div>
+    </div>
+  );
+})}
         <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", margin: "16px 0 10px" }}>Emergency &amp; Trending</b>
         {[
           { txt: "Major Water Pipeline Leakage — Sector 4", sev: "#f87171", id: "CZ-2026-9901" },
@@ -539,46 +623,71 @@ function ReportModal({ open, close }: { open: boolean; close: () => void }) {
 async function submit() {
   try {
     const position = await new Promise<GeolocationPosition>(
-      (resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-          resolve,
-          reject,
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0,
-          }
-        );
+  (resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      resolve,
+      reject,
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
     );
+  }
+);
 
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
+const latitude = position.coords.latitude;
+const longitude = position.coords.longitude;
+const formData = new FormData();
 
-    const response = await fetch(`${API_BASE_URL}/complaints`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        category: domain,
-        description: note,
-        location: "Delhi",
-        latitude: latitude,
-        longitude: longitude,
-        photo: photo ? photo.name : null,
-      }),
-    });
+formData.append("category", domain);
+formData.append("description", note);
+formData.append("location", "Delhi");
+formData.append("latitude", String(latitude));
+formData.append("longitude", String(longitude));
+
+if (photo) {
+  formData.append("photo", photo);
+}
+
+const response = await fetch(`${API_BASE_URL}/complaints`, {
+  method: "POST",
+  body: formData,
+});
 
     const data = await response.json();
+    localStorage.setItem("cityzen_badge_first_report", "true");
+
+if (photo) {
+  localStorage.setItem("cityzen_badge_photo", "true");
+}
+    const currentPoints = Number(
+  localStorage.getItem("cityzen_civic_points") || "1450"
+);
+
+const pointsEarned = photo ? 30 : 20;
+
+localStorage.setItem(
+  "cityzen_civic_points",
+  String(currentPoints + pointsEarned)
+);
+
+window.dispatchEvent(new Event("civicPointsUpdated"));
 
     setComplaintId(data.complaint_id);
     setSubmitted(true);
 
     setToastMsg({
-      pts: 5,
-      label: "5 pts earned. 15 more after verification.",
-    });
+  pts: pointsEarned,
+  label: photo
+    ? "30 Civic Points earned! +10 for photo evidence."
+    : "20 Civic Points earned!",
+});
+
+    setToast(true);
+
+    setTimeout(() => setToast(false), 2500);
+
   } catch (error) {
     console.error("Error submitting complaint:", error);
 
@@ -923,13 +1032,14 @@ useEffect(() => {
     .then((response) => response.json())
     .then((data) => {
       setBackendReports(
-        data.map((r: any) => ({
-          id: r.complaint_id,
-          type: r.category,
-          loc: r.location,
-          status: r.status,
-        }))
-      );
+  data.map((r: any) => ({
+    id: r.complaint_id,
+    type: r.category,
+    loc: r.location,
+    status: r.status,
+    description: r.description,
+  }))
+);
     })
     .catch((error) => {
       console.error("Error loading reports:", error);
@@ -1041,6 +1151,64 @@ useEffect(() => {
             >
               {trackedComplaint.status}
             </div>
+            {trackedComplaint.resolution_description && (
+  <div
+    style={{
+      marginTop: 16,
+      padding: 14,
+      borderRadius: 12,
+      background: "#111827",
+      border: "1px solid #2d3748",
+    }}
+  >
+    <div
+      style={{
+        fontSize: 13,
+        fontWeight: 700,
+        color: "#4ade80",
+        marginBottom: 8,
+      }}
+    >
+      ✓ Resolution Submitted
+    </div>
+
+    <div
+      style={{
+        fontSize: 12,
+        color: "#cbd5e1",
+        marginBottom: 12,
+      }}
+    >
+      {trackedComplaint.resolution_description}
+    </div>
+
+    {trackedComplaint.resolution_photo && (
+      <div>
+        <div
+          style={{
+            fontSize: 12,
+            color: "#94a3b8",
+            marginBottom: 8,
+          }}
+        >
+          📷 Resolution photo
+        </div>
+
+        <img
+          src={`http://127.0.0.1:8000/uploads/${trackedComplaint.resolution_photo}`}
+          alt="Resolution evidence"
+          style={{
+            width: "100%",
+            maxHeight: 300,
+            objectFit: "cover",
+            borderRadius: 12,
+            display: "block",
+          }}
+        />
+      </div>
+    )}
+  </div>
+)}
           </div>
         )}
 
@@ -1132,31 +1300,221 @@ useEffect(() => {
   );
 }
 /* ─── Resolution Verify Modal ─── */
-function ResolutionVerifyModal({ open, close }: { open: boolean; close: () => void }) {
+function ResolutionVerifyModal({
+  open,
+  close,
+  reportIndex,
+  onNext,
+}: {
+  open: boolean;
+  close: () => void;
+  reportIndex: number;
+  onNext: () => void;
+}) {
+  const [verifyReports, setVerifyReports] = useState<any[]>([]);
+
+  const currentReport =
+  verifyReports.length > 0
+    ? verifyReports[reportIndex % verifyReports.length]
+    : null;
   const [step, setStep] = useState<"verify" | "challenge" | "done" | "reopened">("verify");
   const [reason, setReason] = useState("");
-  function handleDone() { setStep("verify"); close(); }
+  const [challengePhoto, setChallengePhoto] = useState<File | null>(null);
+  
+
+useEffect(() => {
+  if (!open) return;
+
+  fetch(`${API_BASE_URL}/complaints`)
+    .then((response) => response.json())
+    .then((data) => {
+      const reports = data
+        .filter(
+  (r: any) =>
+    r.status === "Resolution Submitted" ||
+    r.status === "Resolved"
+)
+        .map((r: any) => ({
+  id: r.complaint_id,
+  type: r.category,
+  location: r.location,
+  completed:
+    r.resolution_description || "Resolution evidence submitted",
+  complaint_photo: r.complaint_photo,
+  resolution_photo: r.resolution_photo,
+}));
+
+      setVerifyReports(reports);
+    })
+    .catch((error) => {
+      console.error("Error loading verification reports:", error);
+    });
+}, [open]);
+  function handleDone() {
+  setStep("verify");
+  close();
+  onNext();
+}
+async function handleChallengeSubmit() {
+  if (!currentReport) return;
+
+  try {
+    const formData = new FormData();
+
+    formData.append("reason", reason);
+
+if (challengePhoto) {
+  formData.append("photo", challengePhoto);
+}
+
+    const response = await fetch(
+      `${API_BASE_URL}/complaints/${currentReport.id}/challenge`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+  throw new Error(data.error || "Failed to submit challenge");
+}
+
+const currentPoints = Number(
+  localStorage.getItem("cityzen_civic_points") || "1450"
+);
+
+localStorage.setItem(
+  "cityzen_civic_points",
+  String(currentPoints + 15)
+);
+
+window.dispatchEvent(new Event("civicPointsUpdated"));
+localStorage.setItem("cityzen_badge_challenge", "true");
+
+alert("Challenge submitted successfully");
+setStep("reopened");
+  } catch (error) {
+    console.error("Challenge submission error:", error);
+    alert("Failed to submit challenge");
+  }
+}
+if (!currentReport) {
   return (
+    <Modal open={open} close={close}>
+      <div style={{ padding: 24, textAlign: "center" }}>
+        <h2 style={{ color: "#f1f5f9" }}>
+          No resolutions waiting for verification
+        </h2>
+
+        <p style={{ color: "#64748b", fontSize: 12 }}>
+          There are currently no submitted resolutions to verify.
+        </p>
+
+        <button
+          className="dk-outline-btn"
+          onClick={close}
+          style={{ marginTop: 12 }}
+        >
+          Close
+        </button>
+      </div>
+    </Modal>
+  );
+}  
+return (
     <Modal open={open} close={close}>
       {step === "verify" && (
         <>
-          <span className="eyebrow" style={{ color: "#FFC107" }}>RESOLUTION CHECK · CZ-2026-0001</span>
+          <span className="eyebrow" style={{ color: "#FFC107" }}>RESOLUTION CHECK · {currentReport.id}</span>
           <h2 style={{ color: "#f1f5f9", fontSize: 18, margin: "6px 0 4px" }}>Is this actually fixed?</h2>
-          <p style={{ fontSize: 11, color: "#64748b", marginBottom: 14 }}>Pothole — Outer Ring Rd · Evidence submitted Oct 18</p>
-          <div className="ba-row" style={{ marginBottom: 14 }}>
-            <div className="ba-panel-dark"><span>Before</span></div>
-            <span style={{ color: "#FFC107" }}>→</span>
-            <div className="ba-panel-dark ba-after-dark"><span>After</span></div>
-          </div>
+          <p style={{ fontSize: 11, color: "#64748b", marginBottom: 14 }}><p>
+  {currentReport.type} — {currentReport.location} · Evidence submitted {currentReport.completed}
+</p></p>
+          <div className="ba-row" style={{ marginBottom: 14, alignItems: "center" }}>
+
+  <div className="ba-panel-dark" style={{ overflow: "hidden", padding: 0 }}>
+    {currentReport.complaint_photo ? (
+      <img
+        src={`${API_BASE_URL}/uploads/${currentReport.complaint_photo}`}
+        alt="Before resolution"
+        style={{
+          width: "100%",
+          height: "150px",
+          objectFit: "cover",
+          display: "block",
+        }}
+      />
+    ) : (
+      <span>Before photo unavailable</span>
+    )}
+    <span style={{ display: "block", padding: "6px" }}>Before</span>
+  </div>
+
+  <span style={{ color: "#FFC107", fontSize: 20 }}>→</span>
+
+  <div className="ba-panel-dark ba-after-dark" style={{ overflow: "hidden", padding: 0 }}>
+    {currentReport.resolution_photo ? (
+      <img
+        src={`${API_BASE_URL}/uploads/${currentReport.resolution_photo}`}
+        alt="After resolution"
+        style={{
+          width: "100%",
+          height: "150px",
+          objectFit: "cover",
+          display: "block",
+        }}
+      />
+    ) : (
+      <span>After photo unavailable</span>
+    )}
+    <span style={{ display: "block", padding: "6px" }}>After</span>
+  </div>
+
+</div>
           <div style={{ background: "#1C2128", border: "1px solid #2d3748", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
-            {[["📝", '"Pothole filled with bituminous mix."'], ["📅", "Completed: Oct 18, 2026"], ["📍", "Outer Ring Rd, Vasant Vihar"], ["🏛", "MCD Road Maintenance · AUTH-DEL-012"]].map(([ic, tx]) => (
-              <div key={String(tx)} style={{ display: "flex", gap: 8, padding: "4px 0", fontSize: 11, color: "#94a3b8" }}>
-                <span>{ic}</span><span>{tx}</span>
-              </div>
-            ))}
+            <div
+  style={{
+    display: "flex",
+    gap: 8,
+    padding: "4px 0",
+    fontSize: 11,
+    color: "#94a3b8",
+  }}
+>
+  <span>🛠️</span>
+  <span>{currentReport.completed}</span>
+</div>
+            
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button className="amber-btn" style={{ flex: 1, background: "#063B28", color: "#4ade80", border: "1px solid #4ade8040" }} onClick={() => setStep("done")}>✓ Verify</button>
+            <button
+  className="amber-btn"
+  style={{
+    flex: 1,
+    background: "#063B28",
+    color: "#4ade80",
+    border: "1px solid #4ade8040",
+  }}
+  onClick={() => {
+    const currentPoints = Number(
+      localStorage.getItem("cityzen_civic_points") || "1450"
+    );
+
+    localStorage.setItem(
+      "cityzen_civic_points",
+      String(currentPoints + 15)
+    );
+
+    window.dispatchEvent(new Event("civicPointsUpdated"));
+
+    localStorage.setItem("cityzen_badge_verify", "true");
+    setStep("done");
+  }}
+>
+  ✓ Verify
+</button>
             <button className="dk-outline-btn" style={{ flex: 1, color: "#f87171", borderColor: "#f8717140" }} onClick={() => setStep("challenge")}>✕ Challenge</button>
           </div>
         </>
@@ -1170,8 +1528,32 @@ function ResolutionVerifyModal({ open, close }: { open: boolean; close: () => vo
               <span>{reason === r ? "●" : "○"}</span>{r}
             </button>
           ))}
-          <div className="dk-upload-box" style={{ marginTop: 10 }}>📷 Add photo evidence (optional)</div>
-          <button className="amber-btn" style={{ marginTop: 14, background: "#7f1d1d", color: "#fca5a5" }} onClick={() => setStep("reopened")}>Submit Challenge</button>
+          <label
+  htmlFor="challenge-photo"
+  style={{
+    display: "block",
+    marginTop: 10,
+    padding: 12,
+    border: "1px dashed #666",
+    borderRadius: 8,
+    cursor: "pointer",
+  }}
+>
+  📷 Add photo evidence (optional)
+</label>
+
+<input
+  type="file"
+  id="challenge-photo"
+  accept="image/*"
+  style={{ display: "none" }}
+  onChange={(e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setChallengePhoto(file);
+  }}
+/>
+          <button className="amber-btn" style={{ marginTop: 14, background: "#7f1d1d", color: "#fca5a5" }} onClick={handleChallengeSubmit}>Submit Challenge</button>
           <button style={{ background: "none", border: "none", color: "#64748b", fontSize: 12, marginTop: 8, cursor: "pointer" }} onClick={() => setStep("verify")}>← Back</button>
         </>
       )}
@@ -1204,6 +1586,7 @@ function Home() {
   const [reportOpen, setReportOpen] = useState(false);
   const [trackerOpen, setTrackerOpen] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const [verifyIndex, setVerifyIndex] = useState(0);
   const [cityOpen, setCityOpen] = useState(false);
   const [impactIdx, setImpactIdx] = useState<number | null>(null);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -1243,7 +1626,13 @@ function Home() {
             <span className="dk-cta-icon" style={{ background: "#1e3a5f", color: "#60a5fa" }}>⌁</span>
             <div><b>Track Reports</b><small>2 updates</small></div>
           </button>
-          <button className="dk-cta-card" onClick={() => setVerifyOpen(true)}>
+          <button
+  className="dk-cta-card"
+  onClick={() => {
+    setVerifyIndex(0);
+    setVerifyOpen(true);
+  }}
+>
             <span className="dk-cta-icon" style={{ background: "#063B28", color: "#4ade80" }}>✓</span>
             <div><b>Verify Fix</b><small>1 awaiting</small></div>
           </button>
@@ -1268,7 +1657,16 @@ function Home() {
 
       <ReportModal open={reportOpen} close={() => setReportOpen(false)} />
       <TrackModal open={trackerOpen} close={() => setTrackerOpen(false)} />
-      <ResolutionVerifyModal open={verifyOpen} close={() => setVerifyOpen(false)} />
+      <ResolutionVerifyModal
+  open={verifyOpen}
+  close={() => setVerifyOpen(false)}
+  reportIndex={verifyIndex}
+  onNext={() => {
+    setVerifyIndex((current) => current + 1);
+    setVerifyOpen(true);
+  }}
+/>
+ 
       {cityOpen && <CityStatusScreen close={() => setCityOpen(false)} />}
       {impactIdx !== null && <ImpactModal idx={impactIdx} close={() => setImpactIdx(null)} />}
     </>
@@ -1725,6 +2123,35 @@ const avatars = [
 ];
 
 function Profile() {
+  const [civicPoints, setCivicPoints] = useState(() =>
+  Number(localStorage.getItem("cityzen_civic_points") || "1450")
+);
+const civicLevel =
+  civicPoints >= 5000
+    ? { level: 5, name: "Civic Hero", icon: "👑" }
+    : civicPoints >= 2000
+    ? { level: 4, name: "Civic Leader", icon: "🏆" }
+    : civicPoints >= 1000
+    ? { level: 3, name: "Civic Champion", icon: "⭐" }
+    : civicPoints >= 500
+    ? { level: 2, name: "Civic Contributor", icon: "🌿" }
+    : { level: 1, name: "Civic Beginner", icon: "🌱" };
+
+useEffect(() => {
+  const updatePoints = () => {
+    setCivicPoints(
+      Number(localStorage.getItem("cityzen_civic_points") || "0")
+    );
+  };
+  
+  
+
+  window.addEventListener("civicPointsUpdated", updatePoints);
+
+  return () => {
+    window.removeEventListener("civicPointsUpdated", updatePoints);
+  };
+}, []);
   const navigate = useNavigate();
   const [profileTab, setProfileTab] = useState<"achievements" | "activity">("achievements");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -1739,12 +2166,39 @@ function Profile() {
   const av = avatars[selectedAvatar];
 
   const sbtBadges = [
-    { icon: "🕳", label: "Pothole Hunter", level: "Level 3", color: "#FFC107", network: "Polygon" },
-    { icon: "🌊", label: "Yamuna Sentinel", level: "Verified", color: "#60a5fa", network: "Base" },
-    { icon: "✓", label: "Top 5% Verifier", level: "Elite", color: "#4ade80", network: "Polygon" },
-    { icon: "🌿", label: "Eco Volunteer", level: "Level 2", color: "#a78bfa", network: "Polygon" },
-  ];
-
+  {
+    icon: "📝",
+    label: "First Report",
+    level: "Unlocked",
+    color: "#FFC107",
+    network: "Polygon",
+    unlocked: localStorage.getItem("cityzen_badge_first_report") === "true",
+  },
+  {
+    icon: "📸",
+    label: "Evidence Collector",
+    level: "Unlocked",
+    color: "#60a5fa",
+    network: "Base",
+    unlocked: localStorage.getItem("cityzen_badge_photo") === "true",
+  },
+  {
+    icon: "✓",
+    label: "Resolution Verifier",
+    level: "Unlocked",
+    color: "#4ade80",
+    network: "Polygon",
+    unlocked: localStorage.getItem("cityzen_badge_verify") === "true",
+  },
+  {
+    icon: "⚠️",
+    label: "Civic Watchdog",
+    level: "Unlocked",
+    color: "#a78bfa",
+    network: "Polygon",
+    unlocked: localStorage.getItem("cityzen_badge_challenge") === "true",
+  },
+];
   const rewards = [
     { icon: "🚇", title: "Delhi Metro Travel Pass", discount: "10% OFF", cost: 500, color: "#1e3a5f", accent: "#60a5fa" },
     { icon: "🅿", title: "Free 2-Hour MCD Parking", discount: "FREE", cost: 300, color: "#2d1f00", accent: "#FFC107" },
@@ -1752,21 +2206,40 @@ function Profile() {
   ];
 
   const leaderboard = [
-    { rank: 1, cid: "Citizen #DEL-1420", pts: 1420, tier: "🥇" },
-    { rank: 2, cid: "Citizen #DEL-2281", pts: 1105, tier: "🥈" },
-    { rank: 3, cid: "Citizen #DEL-8834", pts: 982, tier: "🥉" },
-    { rank: 4, cid: "Citizen #DEL-4412", pts: 891, tier: "" },
-    { rank: 5, cid: "Citizen #DEL-7701", pts: 840, tier: "" },
-  ];
-
+  { cid: "Citizen #DEL-1420", pts: 1420 },
+  { cid: "Citizen #DEL-2281", pts: 1105 },
+  { cid: "You", pts: civicPoints },
+  { cid: "Citizen #DEL-8834", pts: 982 },
+  { cid: "Citizen #DEL-4412", pts: 891 },
+  { cid: "Citizen #DEL-7701", pts: 840 },
+]
+  .sort((a, b) => b.pts - a.pts)
+  .map((l, i) => ({
+    ...l,
+    rank: i + 1,
+    tier:
+      i === 0 ? "🥇" :
+      i === 1 ? "🥈" :
+      i === 2 ? "🥉" :
+      "",
+  }));
   return (
-    <div className="screen dk-screen" style={{ padding: 0 }}>
-      {/* Profile Header */}
-      <div className="dk-profile-hero">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>My Profile</span>
-          <button className="dk-icon-btn" onClick={() => setSettingsOpen(true)} style={{ fontSize: 16 }}>⚙</button>
-        </div>
+  <div className="screen dk-screen" style={{ padding: 0 }}>
+    {/* Profile Header */}
+    <div className="dk-profile-hero">
+  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+    <span style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>
+      My Profile
+    </span>
+    <button
+      className="dk-icon-btn"
+      onClick={() => setSettingsOpen(true)}
+      style={{ fontSize: 16 }}
+    >
+      ⚙
+    </button>
+  </div>
+</div>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
           <div style={{ position: "relative", cursor: "pointer" }} onClick={() => setAvatarPickerOpen(true)}>
             <div style={{ width: 56, height: 56, borderRadius: "50%", background: av.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: "2px solid #FFC107" }}>{av.icon}</div>
@@ -1774,13 +2247,15 @@ function Profile() {
           </div>
           <div>
             <div style={{ fontFamily: "DM Mono", fontSize: 15, color: "#FFC107", fontWeight: 700 }}>{citizenId}</div>
-            <div style={{ fontSize: 11, color: "#4ade80", marginTop: 2 }}>Level 3 Civic Champion</div>
+            <div style={{ fontSize: 11, color: "#4ade80", marginTop: 2 }}>
+  {civicLevel.icon} Level {civicLevel.level} · {civicLevel.name}
+</div>
             <div style={{ fontSize: 10, color: "#64748b", marginTop: 2 }}>Vasant Vihar, Delhi · Active since 2024</div>
           </div>
         </div>
         <div style={{ background: "linear-gradient(135deg,#063B28,#0d4a33)", borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
           <div style={{ fontSize: 9, color: "#4ade80", fontFamily: "DM Mono", letterSpacing: ".08em" }}>CIVIC CONTRIBUTION SCORE</div>
-          <div style={{ fontSize: 32, color: "#FFC107", fontWeight: 800, fontFamily: "DM Mono", margin: "4px 0 2px" }}>🪙 1,450</div>
+          <div style={{ fontSize: 32, color: "#FFC107", fontWeight: 800, fontFamily: "DM Mono", margin: "4px 0 2px" }}>🪙 {civicPoints.toLocaleString()}</div>
           <div style={{ fontSize: 10, color: "#94a3b8" }}>Top 12% in Ward 23</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -1791,7 +2266,7 @@ function Profile() {
             </div>
           ))}
         </div>
-      </div>
+    
 
       {/* Tabs */}
       <div style={{ padding: "0 18px" }}>
@@ -2378,7 +2853,13 @@ const authorityReports = [
   { id: "RPT-2094", type: "Garbage Pile", icon: "♜", desc: "Uncollected waste for 5 days.", location: "Vasant Kunj, Sector C", status: "Pending", priority: "Medium", dept: "Waste Management", time: "Oct 14 · 9:00 AM", upvotes: 76, delayReason: "Budget approval" as string | null },
 ];
 
-type AuthReport = typeof authorityReports[0];
+type AuthReport = typeof authorityReports[0] & {
+  complaint_id?: string;
+  resolution_description?: string;
+  resolution_photo?: string | null;
+  challenge_photo?: string | null;
+  challenge_description?: string | null;
+};
 
 function AuthorityReportSheet({
   r,
@@ -2391,7 +2872,7 @@ function AuthorityReportSheet({
 }) {
   const [status, setStatus] = useState(r.status);
   const [resolutionDescription, setResolutionDescription] = useState("");
-  const [resolutionPhoto, setResolutionPhoto] = useState("");
+  const [resolutionPhoto, setResolutionPhoto] = useState<File | null>(null);
   const [submittingResolution, setSubmittingResolution] = useState(false);
 
   const statusColors: Record<string, string> = {
@@ -2468,11 +2949,117 @@ function AuthorityReportSheet({
         </p>
 
         <div
-          className="dk-upload-box"
-          style={{ marginBottom: 12 }}
-        >
-          📸 Citizen photo
-        </div>
+  className="dk-upload-box"
+  style={{ marginBottom: 12 }}
+>
+  <div
+    style={{
+      fontSize: 12,
+      color: "#94a3b8",
+      marginBottom: 8,
+    }}
+>    📷 Citizen photo
+  </div>
+  {r.challenge_photo && (
+  <div
+    className="dk-upload-box"
+    style={{ marginBottom: 12 }}
+  >
+    <div
+      style={{
+        fontSize: 12,
+        color: "#f87171",
+        marginBottom: 8,
+}}>
+{r.challenge_description ? (
+  <div style={{ marginBottom: 12 }}>
+    <p style={{ color: "#f87171", fontSize: 12 }}>
+      ⚠️ Challenge reason
+    </p>
+    <p style={{ color: "#ffffff" }}>
+      {r.challenge_description}
+    </p>
+  </div>
+) : null}
+
+
+      
+    
+    
+      ⚠️ Challenge evidence photo
+    </div>
+
+    <img
+      src={`${API_BASE_URL}/uploads/${r.challenge_photo}`}
+      alt="Citizen challenge evidence"
+      style={{
+        width: "100%",
+        maxHeight: 300,
+        objectFit: "cover",
+        borderRadius: 12,
+        display: "block",
+      }}
+    />
+  </div>
+)}
+{r.challenge_description && (
+  <div
+    style={{
+      marginBottom: 12,
+      padding: 12,
+      borderRadius: 10,
+      background: "#2d0f0f",
+      border: "1px solid #f8717140",
+    }}
+  >
+    <div
+      style={{
+        fontSize: 11,
+        color: "#f87171",
+        fontWeight: 700,
+        marginBottom: 6,
+      }}
+    >
+      ⚠️ Citizen Challenge
+    </div>
+
+    <p
+      style={{
+        margin: 0,
+        fontSize: 12,
+        color: "#fca5a5",
+        lineHeight: 1.5,
+      }}
+    >
+      {r.challenge_description}
+    </p>
+  </div>
+)}
+
+  {r.complaint_photo ? (
+    <img
+      src={`${API_BASE_URL}/uploads/${r.complaint_photo}`}
+      alt="Citizen submitted photo"
+      style={{
+        width: "100%",
+        maxHeight: 300,
+        objectFit: "cover",
+        borderRadius: 12,
+        display: "block",
+      }}
+    />
+  ) : (
+    <div
+      style={{
+        padding: 20,
+        textAlign: "center",
+        color: "#94a3b8",
+      }}
+    >
+      📷 No citizen photo uploaded
+    </div>
+  )}
+</div>
 
         <p
           style={{
@@ -2556,7 +3143,10 @@ function AuthorityReportSheet({
         textAlign: "center",
       }}
     >
-      <label style={{ cursor: "pointer", display: "block" }}>
+      <label
+  htmlFor="resolution-photo"
+  style={{ cursor: "pointer", display: "block" }}
+>
         📷{" "}
         {resolutionPhoto
           ? `Photo selected: ${resolutionPhoto}`
@@ -2564,14 +3154,19 @@ function AuthorityReportSheet({
 
         <input
           type="file"
+          id="resolution-photo"
           accept="image/*"
-          style={{ display: "none" }}
+          style={{
+  display: "block",
+  width: "100%",
+  marginTop: 10,
+}}
           onChange={e => {
             const file = e.target.files?.[0];
 
             if (!file) return;
 
-            setResolutionPhoto(file.name);
+            setResolutionPhoto(file);
           }}
         />
       </label>
@@ -2609,19 +3204,21 @@ function AuthorityReportSheet({
         setSubmittingResolution(true);
 
         try {
-          const response = await fetch(
-            `${API_BASE_URL}/complaints/${r.complaint_id}/resolution`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                description: resolutionDescription,
-                photo: resolutionPhoto,
-              }),
-            }
-          );
+          const formData = new FormData();
+
+formData.append("description", resolutionDescription);
+
+if (resolutionPhoto) {
+  formData.append("photo", resolutionPhoto);
+}
+
+const response = await fetch(
+  `${API_BASE_URL}/complaints/${r.complaint_id}/resolution`,
+  {
+    method: "PUT",
+    body: formData,
+  }
+);
 
           const data = await response.json();
 
@@ -2655,15 +3252,10 @@ function AuthorityReportSheet({
 }
 
 /* ─── On-site Photo Data ─── */
-const onSitePhotos = [
-  { id: "OS-01", label: "Pothole · Outer Ring Rd", zone: "Vasant Vihar", time: "Today 8:14 AM", severity: "Critical", lat: "28.5612° N", lon: "77.1563° E", aiNote: "Deep void 30cm diameter. Structural risk — immediate repair required.", color: "#f87171", icon: "🛣" },
-  { id: "OS-02", label: "Sewage Overflow · Lane 7", zone: "Lajpat Nagar", time: "Today 9:02 AM", severity: "High", lat: "28.5672° N", lon: "77.2440° E", aiNote: "Overflow across 4m stretch. Health hazard. Sanitation crew needed.", color: "#FFC107", icon: "⊘" },
-  { id: "OS-03", label: "Broken Streetlight · Block C", zone: "Safdarjung", time: "Yesterday 11:30 PM", severity: "Medium", lat: "28.5680° N", lon: "77.2090° E", aiNote: "3 consecutive poles offline. Road visibility reduced by 80%.", color: "#60a5fa", icon: "💡" },
-  { id: "OS-04", label: "Garbage Pile · Market", zone: "Vasant Kunj", time: "Today 6:45 AM", severity: "High", lat: "28.5215° N", lon: "77.1508° E", aiNote: "Estimated 200kg uncollected waste. Vermin activity detected nearby.", color: "#FFC107", icon: "🗑" },
-];
+
 
 /* ─── Photo Carousel with inspection modal ─── */
-function PhotoCarousel() {
+function PhotoCarousel({ onSitePhotos }: { onSitePhotos: any[] }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [inspectPhoto, setInspectPhoto] = useState<typeof onSitePhotos[0] | null>(null);
   const [crewAssigned, setCrewAssigned] = useState(false);
@@ -2674,7 +3266,15 @@ function PhotoCarousel() {
     return () => clearInterval(t);
   }, []);
 
-  const ph = onSitePhotos[activeIdx];
+  if (!onSitePhotos.length) {
+  return (
+    <div style={{ marginBottom: 16, color: "#64748b", fontSize: 12 }}>
+      No on-site photos available.
+    </div>
+  );
+}
+
+const ph = onSitePhotos[activeIdx] ?? onSitePhotos[0];
 
   return (
     <>
@@ -2685,7 +3285,20 @@ function PhotoCarousel() {
         </div>
         <div className="photo-carousel" onClick={() => setInspectPhoto(ph)}>
           <div className="pc-photo" style={{ background: `linear-gradient(160deg,${ph.color}18,#1C2128)`, borderColor: ph.color + "40" }}>
-            <span style={{ fontSize: 42, opacity: .6 }}>{ph.icon}</span>
+            {ph.photo ? (
+  <img
+    src={`${API_BASE_URL}/uploads/${encodeURIComponent(ph.photo)}`}
+    alt={ph.label}
+    style={{
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      display: "block",
+    }}
+  />
+) : (
+  <span style={{ fontSize: 42, opacity: .6 }}>{ph.icon}</span>
+)}
             <div className="pc-overlay">
               <span className="pc-sev" style={{ background: ph.color + "30", color: ph.color, borderColor: ph.color + "60" }}>⚠ {ph.severity}</span>
               <b style={{ color: "#f1f5f9", fontSize: 13 }}>{ph.label}</b>
@@ -2763,8 +3376,84 @@ function Authority() {
   const [tab, setTab] = useState<"home" | "queue" | "map" | "ward" | "profile">("home");
   const [notifOpen, setNotifOpen] = useState(false);
   const [detailReport, setDetailReport] = useState<AuthReport | null>(null);
+  const [authorityStatus, setAuthorityStatus] = useState("");
+const [resolutionDescription, setResolutionDescription] = useState("");
+const [resolutionPhoto, setResolutionPhoto] = useState<File | null>(null);
+const [savingStatus, setSavingStatus] = useState(false);
+const [savingResolution, setSavingResolution] = useState(false);
+useEffect(() => {
+  if (detailReport) {
+    setAuthorityStatus(detailReport.status || "");
+    setResolutionDescription(detailReport.resolution_description || "");
+    setResolutionPhoto(null);
+  }
+}, [detailReport]);
   const [queueFilter, setQueueFilter] = useState<"All" | "Critical" | "High Priority" | "Pending" | "Resolved">("All");
   const [backendComplaints, setBackendComplaints] = useState<any[]>([]);
+  const severityLevels = ["Critical", "High", "Medium", "Low"];
+
+const onSitePhotos = severityLevels.map((severity) => {
+  const complaint = backendComplaints
+    .map((r) => {
+      const category = (r.category || "").toLowerCase();
+
+      let calculatedSeverity = "Low";
+
+      if (
+        category === "sanitation" ||
+        category === "sewage" ||
+        category === "water"
+      ) {
+        calculatedSeverity = "Critical";
+      } else if (
+        category === "roads" ||
+        category === "pothole"
+      ) {
+        calculatedSeverity = "High";
+      } else if (
+        category === "streetlights" ||
+        category === "streetlight"
+      ) {
+        calculatedSeverity = "Medium";
+      }
+
+      return { ...r, calculatedSeverity };
+    })
+    .find((r) => r.calculatedSeverity === severity);
+
+  const icon =
+    severity === "Critical"
+      ? "🚨"
+      : severity === "High"
+      ? "⚠️"
+      : severity === "Medium"
+      ? "🔧"
+      : "ℹ️";
+
+  const color =
+    severity === "Critical"
+      ? "#f87171"
+      : severity === "High"
+      ? "#FFC107"
+      : severity === "Medium"
+      ? "#60a5fa"
+      : "#4ade80";
+
+  return {
+    id: complaint?.complaint_id || `placeholder-${severity}`,
+    label: complaint?.category || "No current reports",
+    zone: complaint?.location || "No current reports",
+    time: complaint ? "Recent" : "—",
+    severity,
+    lat: "",
+    lon: "",
+    aiNote: "",
+    icon,
+    color,
+    photo: complaint?.complaint_photo || null,
+  };
+});
+  
   async function loadComplaints() {
   try {
     const response = await fetch(`${API_BASE_URL}/complaints`);
@@ -2772,6 +3461,109 @@ function Authority() {
     setBackendComplaints(data);
   } catch (error) {
     console.error("Error loading complaints:", error);
+  }
+}
+async function saveAuthorityStatus() {
+  if (!detailReport || !authorityStatus) return;
+
+  setSavingStatus(true);
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/complaints/${detailReport.complaint_id}/status?status=${encodeURIComponent(authorityStatus)}`,
+      {
+        method: "PUT",
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.detail || "Could not update status.");
+      return;
+    }
+
+    setDetailReport({
+      ...detailReport,
+      status: authorityStatus,
+    });
+
+    setBackendComplaints((previous) =>
+      previous.map((r) =>
+        r.complaint_id === detailReport.complaint_id
+          ? { ...r, status: authorityStatus }
+          : r
+      )
+    );
+
+    alert("Status updated successfully.");
+  } catch (error) {
+    console.error("Error updating status:", error);
+    alert("Could not update status.");
+  } finally {
+    setSavingStatus(false);
+  }
+}
+
+async function saveResolution() {
+  if (!detailReport) return;
+
+  setSavingResolution(true);
+
+  try {
+    const formData = new FormData();
+
+    formData.append("description", resolutionDescription);
+
+    if (resolutionPhoto) {
+      formData.append("photo", resolutionPhoto);
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/complaints/${detailReport.complaint_id}/resolution`,
+      {
+        method: "PUT",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.detail || "Could not save resolution.");
+      return;
+    }
+
+    setDetailReport({
+      ...detailReport,
+      resolution_description: resolutionDescription,
+      resolution_photo: resolutionPhoto
+        ? resolutionPhoto.name
+        : detailReport.resolution_photo,
+      status: "Resolution Submitted",
+    });
+
+    setBackendComplaints((previous) =>
+      previous.map((r) =>
+        r.complaint_id === detailReport.complaint_id
+          ? {
+              ...r,
+              status: "Resolution Submitted",
+              resolution_description: resolutionDescription,
+              resolution_photo: resolutionPhoto
+                ? resolutionPhoto.name
+                : r.resolution_photo,
+            }
+          : r
+      )
+    );
+
+    alert("Resolution saved successfully.");
+  } catch (error) {
+    console.error("Error saving resolution:", error);
+    alert("Could not save resolution.");
+  } finally {
+    setSavingResolution(false);
   }
 }
   useEffect(() => {
@@ -2815,7 +3607,34 @@ function Authority() {
             <div><span style={{ fontSize: 9, color: "#64748b", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block" }}>CITYZEN AUTHORITY</span><h1 style={{ fontSize: 20, color: "#f1f5f9" }}>Command Dashboard</h1></div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
-            {[["342", "Complaints", "#60a5fa"], ["287", "Resolved", "#4ade80"], ["38", "Pending", "#FFC107"], ["17", "Overdue", "#f87171"]].map(([v, l, c]) => (
+            {[
+  [
+    backendComplaints.length.toString(),
+    "Complaints",
+    "#60a5fa",
+  ],
+  [
+    backendComplaints
+      .filter((r) => r.status === "Resolved")
+      .length
+      .toString(),
+    "Resolved",
+    "#4ade80",
+  ],
+  [
+    backendComplaints
+      .filter((r) => r.status !== "Resolved")
+      .length
+      .toString(),
+    "Pending",
+    "#FFC107",
+  ],
+  [
+    "N/A",
+    "Overdue",
+    "#f87171",
+  ],
+].map(([v, l, c]) => (
               <div key={l} style={{ background: "#1C2128", border: `1px solid ${c}30`, borderRadius: 12, padding: "12px 14px", borderTop: `3px solid ${c}` }}>
                 <b style={{ color: c, fontSize: 22, display: "block" }}>{v}</b>
                 <span style={{ fontSize: 11, color: "#64748b" }}>{l}</span>
@@ -2823,23 +3642,132 @@ function Authority() {
             ))}
           </div>
           <div style={{ background: "#2d1f0030", border: "1px solid #FFC10740", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
-            <span style={{ fontSize: 9, color: "#FFC107", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block", marginBottom: 8 }}>NEEDS ATTENTION</span>
-            {["3 resolutions challenged by citizens", "5 recurring infrastructure problems", "12 overdue reports past SLA"].map((t, i) => (
-              <div key={i} style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>⚠ {t}</div>
-            ))}
-          </div>
+  <span style={{ fontSize: 9, color: "#FFC107", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block", marginBottom: 8 }}>
+    NEEDS ATTENTION
+  </span>
+
+  <div style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>
+    ⚠ {backendComplaints.filter((r) => r.status === "Challenged").length} resolutions challenged by citizens
+  </div>
+
+  <div style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>
+  ⚠ {
+    [
+      "Garbage",
+      "Roads",
+      "Streetlights",
+      "Sewage",
+      "Water",
+    ].filter((group) => {
+      const count = backendComplaints.filter((r) => {
+        const category = (r.category || "").toLowerCase();
+
+        if (group === "Roads") {
+          return category === "roads" || category === "pothole";
+        }
+
+        if (group === "Sewage") {
+          return category === "sewage" || category === "sanitation";
+        }
+
+        if (group === "Streetlights") {
+          return category === "streetlights" || category === "streetlight";
+        }
+
+        if (group === "Garbage") {
+          return category === "garbage" || category === "garbage pile";
+        }
+
+        if (group === "Water") {
+          return category === "water";
+        }
+
+        return false;
+      }).length;
+
+      return count >= 2;
+    }).length
+  } recurring infrastructure problems
+</div>
+
+  <div style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>
+    ⚠ {backendComplaints.filter((r) => r.status === "Overdue").length} overdue reports past SLA
+  </div>
+</div>
           <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", marginBottom: 10 }}>Domain Analytics</b>
-          {[["Garbage", 32, "#4ade80"], ["Roads", 26, "#FFC107"], ["Streetlights", 18, "#60a5fa"], ["Sewage", 14, "#f87171"]].map(([l, p, c]) => (
-            <div key={String(l)} style={{ marginBottom: 8 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 3 }}>
-                <span style={{ color: "#94a3b8" }}>{l}</span><span style={{ color: "#334155" }}>{p}%</span>
-              </div>
-              <div style={{ height: 8, background: "#1C2128", borderRadius: 4, overflow: "hidden" }}>
-                <div style={{ width: `${p}%`, height: "100%", background: c as string, borderRadius: 4 }} />
-              </div>
-            </div>
-          ))}
-          <PhotoCarousel />
+          {[
+  { label: "Garbage", color: "#4ade80" },
+  { label: "Roads", color: "#FFC107" },
+  { label: "Streetlights", color: "#60a5fa" },
+  { label: "Sewage", color: "#f87171" },
+  { label: "Water", color: "#38bdf8" },
+].map((b, i) => {
+  const count = backendComplaints.filter((r) => {
+  const category = (r.category || "").toLowerCase();
+
+  if (b.label === "Roads") {
+    return category === "roads" || category === "pothole";
+  }
+
+  if (b.label === "Sewage") {
+    return category === "sewage" || category === "sanitation";
+  }
+
+  if (b.label === "Water") {
+    return category === "water";
+  }
+
+  if (b.label === "Streetlights") {
+    return category === "streetlights" || category === "streetlight";
+  }
+
+  if (b.label === "Garbage") {
+    return category === "garbage" || category === "garbage pile";
+  }
+
+  return false;
+}).length;
+
+  const pct =
+    backendComplaints.length > 0
+      ? Math.round((count / backendComplaints.length) * 100)
+      : 0;
+
+  return (
+    <div key={i} style={{ marginBottom: 8 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: 11,
+          marginBottom: 3,
+        }}
+      >
+        <span style={{ color: "#94a3b8" }}>{b.label}</span>
+        <span style={{ color: "#334155" }}>{pct}%</span>
+      </div>
+
+      <div
+        style={{
+          height: 8,
+          background: "#1C2128",
+          borderRadius: 4,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${pct}%`,
+            height: "100%",
+            background: b.color,
+            borderRadius: 4,
+          }}
+        />
+      </div>
+    </div>
+  );
+})}
+          <PhotoCarousel onSitePhotos={onSitePhotos} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "18px 0 10px" }}>
             <b style={{ fontSize: 13, color: "#f1f5f9" }}>Recent Reports</b>
             <button style={{ background: "none", border: "none", color: "#FFC107", fontSize: 12, cursor: "pointer" }} onClick={() => setTab("queue")}>All →</button>
