@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap');
 @import 'tailwindcss';
 
@@ -562,4 +563,775 @@ option { background: var(--surface2); color: var(--ink); }
   background: linear-gradient(135deg, #4C1D95, #6D28D9);
   border: 1px solid rgba(167,139,250,.2);
   border-radius: 16px;
+}
+/* =========================================
+   CITYZEN — GREEN + YELLOW + WHITE THEME
+   ========================================= */
+
+:root {
+  --bg: #F8FAF8;
+  --surface: #FFFFFF;
+  --surface2: #F1F6F2;
+
+  --border: #DDE8DF;
+  --line: #E8EFE9;
+
+  --ink: #173B2B;
+  --muted: #66756B;
+  --subtle: #8A978F;
+
+  --green-deep: #14532D;
+  --green-primary: #176B3A;
+  --green-light: #E7F3EA;
+
+  --amber: #F4C542;
+  --yellow: #F5C842;
+
+  --mint: #2E8B57;
+  --blue: #3B82F6;
+  --red: #DC5A5A;
+
+  --sunset: #176B3A;
+}
+
+/* Page */
+body {
+  background: #F8FAF8;
+  color: #173B2B;
+}
+
+.app-shell {
+  background: #F8FAF8;
+  box-shadow: 0 0 40px rgba(20, 83, 45, 0.08);
+}
+
+.screen,
+.dk-screen {
+  background: #F8FAF8;
+}
+
+/* Headings */
+h1,
+h2 {
+  color: #173B2B;
+}
+
+h3 {
+  color: #244936;
+}
+
+em {
+  color: #D49F00;
+}
+
+/* Top status bar */
+.status-bar {
+  background: #FFFFFF;
+  color: #718078;
+  border-bottom: 1px solid #E1EAE3;
+}
+
+.sb-live {
+  color: #176B3A;
+}
+
+.sb-pts {
+  color: #C28E00;
+}
+
+/* Top bar */
+.dark-topbar-title {
+  color: #173B2B;
+}
+
+.dk-icon-btn,
+.dk-search {
+  background: #FFFFFF;
+  border: 1px solid #DDE8DF;
+  color: #173B2B;
+}
+
+/* Cards */
+.dk-cta-card,
+.dk-post-card,
+.dk-vol-card,
+.dk-dropdown,
+.dk-confirm-card,
+.dk-reward-box,
+.dk-info-banner,
+.dk-sbt-preview,
+.dk-upload-box,
+.upload-box,
+.field,
+.dk-field,
+.dk-reason-opt,
+.dk-report-card {
+  background: #FFFFFF;
+  border-color: #DDE8DF;
+  color: #173B2B;
+}
+
+/* Primary buttons */
+.amber-btn,
+.amber-report-cta,
+.primary-button,
+.terms-agree-btn,
+.dk-upvote-action-btn,
+.dup-upvote-btn,
+.dk-fab {
+  background: #176B3A;
+  color: #FFFFFF;
+  box-shadow: 0 5px 18px rgba(23, 107, 58, 0.22);
+}
+
+.amber-btn:hover,
+.primary-button:hover,
+.amber-report-cta:hover {
+  background: #145C32;
+}
+
+/* Green authority button */
+.dk-auth-btn {
+  background: #E7F3EA;
+  color: #176B3A;
+  border-color: #B9DCC2;
+}
+
+/* Secondary buttons */
+.secondary-button,
+.dk-outline-btn {
+  background: #FFFFFF;
+  color: #176B3A;
+  border-color: #BFD4C5;
+}
+
+/* Tabs */
+.dk-tab-bar {
+  background: #EAF2EC;
+}
+
+.dk-tab {
+  color: #66756B;
+}
+
+.dk-tab-active,
+.dk-cat-tab.active {
+  background: #176B3A;
+  color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(23, 107, 58, 0.18);
+}
+
+.dk-cat-tab {
+  background: #FFFFFF;
+  border-color: #DDE8DF;
+  color: #66756B;
+}
+
+/* Report cards */
+.dk-report-card:hover {
+  border-color: #78A989;
+}
+
+.dk-cam-tab {
+  background: #FFFFFF;
+  border-color: #DDE8DF;
+  color: #66756B;
+}
+
+.dk-cam-tab.active {
+  background: #E7F3EA;
+  color: #176B3A;
+  border-color: #B9DCC2;
+}
+
+/* Fields */
+.dk-field:focus,
+.field:focus {
+  border-color: #176B3A;
+}
+
+/* Location */
+.dk-loc-btn {
+  background: #FFFFFF;
+  border-color: #DDE8DF;
+  color: #173B2B;
+}
+
+/* Authority tag */
+.dk-authority-tag {
+  background: #E7F3EA;
+  border-color: #B9DCC2;
+}
+
+/* Reason selected */
+.dk-reason-opt.selected {
+  border-color: #E2BD3A;
+  color: #8B6900;
+  background: #FFF8D9;
+}
+
+/* Success */
+.dk-success-badge {
+  background: #176B3A;
+  box-shadow: 0 4px 18px rgba(23, 107, 58, 0.2);
+}
+
+.dk-reward-box b {
+  color: #176B3A;
+}
+
+.dk-pts-note {
+  background: #FFF8D9;
+  border-color: #E9D47A;
+}
+
+.dk-pts-note b {
+  color: #9A7300;
+}
+
+/* Timeline */
+.tl-dot {
+  background: #FFFFFF;
+  border-color: #DDE8DF;
+}
+
+.tl-step::before {
+  background: #DDE8DF;
+}
+
+.tl-done .tl-dot {
+  border-color: #79AD89;
+  background: #E7F3EA;
+}
+
+/* Bottom navigation */
+.bottom-nav,
+.dark-nav {
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid #DDE8DF;
+}
+
+.nav-item {
+  color: #829087;
+}
+
+.nav-item.active {
+  color: #176B3A;
+}
+
+.nav-item.active::before {
+  background: #E7F3EA;
+  opacity: 1;
+  filter: none;
+}
+
+.nav-item.active span:first-child {
+  background: none;
+  -webkit-text-fill-color: #176B3A;
+  color: #176B3A;
+}
+
+/* Upload */
+.dk-upload-box,
+.upload-box {
+  border-color: #BFD4C5;
+  background: #FFFFFF;
+}
+
+.dk-upload-box b,
+.upload-box b {
+  color: #173B2B;
+}
+
+/* Social */
+.dk-social-head b {
+  color: #173B2B;
+}
+
+.dk-domain-tag {
+  background: #E7F3EA;
+  color: #176B3A;
+  border-color: #B9DCC2;
+}
+
+/* Post image */
+.dk-post-image {
+  background: #F1F6F2;
+  border-color: #DDE8DF;
+}
+
+/* Track button */
+.dk-track-btn {
+  background: #FFFFFF;
+  color: #176B3A;
+  border-color: #BFD4C5;
+}
+
+/* Feed actions */
+.dk-feed-act {
+  background: #FFFFFF;
+  border-color: #DDE8DF;
+  color: #66756B;
+}
+
+/* Volunteer */
+.dk-vol-icon {
+  background: #E7F3EA;
+}
+
+.vh-web3-badge {
+  background: #E7F3EA;
+  border-color: #B9DCC2;
+  color: #8B6900;
+}
+
+/* Profile */
+.dk-profile-hero {
+  background: #FFFFFF;
+  border-bottom-color: #DDE8DF;
+}
+
+/* Welcome */
+.dk-welcome-screen {
+  background: #F8FAF8;
+}
+
+.welcome-card {
+  background: #FFFFFF;
+  border-color: #DDE8DF;
+  box-shadow: 0 15px 40px rgba(20, 83, 45, 0.08);
+}
+
+.dk-slogan {
+  color: #66756B;
+}
+
+.dk-tagline {
+  color: #829087;
+}
+
+/* Logo */
+.logo-wordmark {
+  color: #14532D;
+}
+
+/* Toast */
+.civic-toast {
+  background: #176B3A;
+  box-shadow: 0 4px 18px rgba(23, 107, 58, 0.25);
+}
+
+/* Modals */
+.modal-backdrop,
+.terms-backdrop,
+.dup-overlay {
+  background: rgba(20, 40, 28, 0.35);
+}
+
+.dark-sheet,
+.terms-card,
+.dup-card,
+.dk-dup-card {
+  background: #FFFFFF;
+  border-color: #DDE8DF;
+  color: #173B2B;
+}
+
+/* Duplicate detection */
+.dup-radar-ring {
+  border-color: #F4C542;
+}
+
+.dup-photo,
+.dk-dup-preview {
+  background: #F1F6F2;
+  border-color: #DDE8DF;
+}
+
+/* Misc */
+.subline,
+.back-link {
+  color: #66756B;
+}
+
+/* Remove violet styling */
+.violet-tile,
+.violet-tile-bright {
+  background: #E7F3EA;
+  border-color: #B9DCC2;
+}
+
+
+/* =========================================================
+   CITYZEN - GREEN / YELLOW / WHITE THEME
+   ========================================================= */
+
+:root {
+  --cityzen-green: #004d3a;
+  --cityzen-green-dark: #003d2e;
+  --cityzen-green-light: #eaf5f0;
+  --cityzen-green-soft: #f3f8f5;
+
+  --cityzen-yellow: #f4c400;
+  --cityzen-yellow-light: #fff7cc;
+
+  --cityzen-white: #ffffff;
+  --cityzen-text: #17201d;
+  --cityzen-muted: #6b7772;
+
+  --cityzen-border: #e5ebe8;
+
+  --cityzen-radius: 16px;
+  --cityzen-radius-small: 12px;
+
+  --cityzen-shadow: 0 6px 24px rgba(0, 77, 58, 0.08);
+}
+
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  background: #ffffff;
+  color: var(--cityzen-text);
+}
+
+
+/* =========================================================
+   HEADINGS
+   ========================================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--cityzen-text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+button {
+  font-family: 'Inter', sans-serif;
+  border-radius: 12px;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+
+/* Green primary buttons */
+
+button[type="submit"],
+.btn-primary,
+.primary-btn,
+[class*="primary-button"],
+[class*="primary-btn"] {
+  background: var(--cityzen-green);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+}
+
+button[type="submit"]:hover,
+.btn-primary:hover,
+.primary-btn:hover,
+[class*="primary-button"]:hover,
+[class*="primary-btn"]:hover {
+  background: var(--cityzen-green-dark);
+  box-shadow: 0 6px 18px rgba(0, 77, 58, 0.18);
+}
+
+
+/* Yellow accent buttons */
+
+.btn-yellow,
+.yellow-btn,
+[class*="yellow-button"],
+[class*="yellow-btn"] {
+  background: var(--cityzen-yellow);
+  color: var(--cityzen-text);
+  border: none;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   INPUTS / SEARCH
+   ========================================================= */
+
+input,
+textarea,
+select {
+  font-family: 'Inter', sans-serif;
+  border: 1px solid var(--cityzen-border);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--cityzen-text);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--cityzen-green);
+  box-shadow: 0 0 0 3px rgba(0, 77, 58, 0.08);
+}
+
+
+/* Search bars */
+
+input[type="search"] {
+  border-radius: 999px;
+  padding-left: 18px;
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.card,
+[class*="card"],
+[class*="Card"] {
+  border-radius: var(--cityzen-radius);
+  border-color: var(--cityzen-border);
+}
+
+
+/* =========================================================
+   CITYZEN GREEN HEADER
+   ========================================================= */
+
+.header,
+.navbar,
+.topbar,
+[class*="header"],
+[class*="Header"],
+[class*="navbar"],
+[class*="Navbar"] {
+  font-family: 'Inter', sans-serif;
+}
+
+
+/* =========================================================
+   GREEN BACKGROUNDS
+   ========================================================= */
+
+.green-section,
+.cityzen-green,
+[class*="green-section"],
+[class*="green-header"] {
+  background: var(--cityzen-green);
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   YELLOW ACCENTS
+   ========================================================= */
+
+.badge,
+.offer-badge,
+.discount-badge,
+[class*="badge"],
+[class*="discount"] {
+  font-family: 'Inter', sans-serif;
+}
+
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+a {
+  color: var(--cityzen-green);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--cityzen-green-dark);
+}
+
+
+/* =========================================================
+   ICON CIRCLES
+   ========================================================= */
+
+.icon-circle,
+[class*="icon-circle"],
+[class*="iconCircle"] {
+  border-radius: 50%;
+}
+
+
+/* =========================================================
+   SOFT GREEN AREAS
+   ========================================================= */
+
+.soft-green,
+.light-green,
+[class*="soft-green"],
+[class*="light-green"] {
+  background: var(--cityzen-green-light);
+}
+
+
+/* =========================================================
+   REMOVE OLD PURPLE / VIOLET FEEL
+   ========================================================= */
+
+.violet-tile,
+.violet-tile-bright {
+  background: var(--cityzen-green-light);
+  border-color: #b9d9cc;
+  color: var(--cityzen-green);
+}
+
+
+/* =========================================================
+   PROFESSIONAL CARD STYLE
+   ========================================================= */
+
+[class*="service-card"],
+[class*="ServiceCard"],
+[class*="complaint-card"],
+[class*="ComplaintCard"] {
+  background: #ffffff;
+  border: 1px solid var(--cityzen-border);
+  border-radius: 16px;
+  box-shadow: var(--cityzen-shadow);
+}
+
+
+/* =========================================================
+   STATUS / HIGHLIGHT ELEMENTS
+   ========================================================= */
+
+[class*="status"],
+[class*="Status"] {
+  border-radius: 999px;
+}
+
+
+/* =========================================================
+   BOTTOM NAVIGATION
+   ========================================================= */
+
+.bottom-nav,
+.bottom-navigation,
+[class*="bottom-nav"],
+[class*="BottomNav"] {
+  background: var(--cityzen-green);
+  border-radius: 22px;
+  box-shadow: 0 8px 25px rgba(0, 77, 58, 0.18);
+}
+
+.bottom-nav a,
+.bottom-navigation a,
+[class*="bottom-nav"] a {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.bottom-nav a.active,
+.bottom-navigation a.active,
+[class*="bottom-nav"] a.active {
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   CLEAN SCROLLBARS
+   ========================================================= */
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f7f6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b8cbc3;
+  border-radius: 999px;
+}
+
+
+/* =========================================================
+   CITYZEN ACCENT UTILITY CLASSES
+   ========================================================= */
+
+.cityzen-green-text {
+  color: var(--cityzen-green);
+}
+
+.cityzen-yellow-text {
+  color: #c79f00;
+}
+
+.cityzen-green-bg {
+  background: var(--cityzen-green);
+  color: #ffffff;
+}
+
+.cityzen-yellow-bg {
+  background: var(--cityzen-yellow);
+  color: var(--cityzen-text);
+}
+
+.cityzen-soft-bg {
+  background: var(--cityzen-green-light);
+}
+
+
+/* =========================================================
+   MOBILE APP-LIKE FEEL
+   ========================================================= */
+
+@media (max-width: 768px) {
+  body {
+    background: #ffffff;
+  }
+
+  button {
+    min-height: 44px;
+  }
+
+  input,
+  textarea,
+  select {
+    min-height: 44px;
+  }
 }

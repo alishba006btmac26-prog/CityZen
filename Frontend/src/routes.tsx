@@ -1,3 +1,4 @@
+import DelhiMap from "./components/DelhiMap";
 import { useState, useEffect, type ReactNode } from "react";
 import { createBrowserRouter, NavLink, Outlet, useNavigate } from "react-router";
 const API_BASE_URL =
@@ -476,16 +477,51 @@ function ReportModal({ open, close }: { open: boolean; close: () => void }) {
   const [domain, setDomain] = useState("Roads");
   const [note, setNote] = useState("");
   const [locationSet, setLocationSet] = useState(false);
+  const [userLocation, setUserLocation] = useState<{
+  latitude: number;
+  longitude: number;
+} | null>(null);
   const [dupDetected, setDupDetected] = useState(false);
   const [dupUpvoted, setDupUpvoted] = useState(false);
   const [bypassDup, setBypassDup] = useState(false);
   const [complaintId, setComplaintId] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
 
-  function handleSetLocation() {
+  async function handleSetLocation() {
+  try {
+    const position = await new Promise<GeolocationPosition>(
+      (resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          }
+        );
+      }
+    );
+
+    console.log("GPS Location:", {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    });
+    setUserLocation({
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+});
+
     setLocationSet(true);
-    if (!bypassDup && nearbyDuplicates[domain]) setTimeout(() => setDupDetected(true), 420);
+
+    if (!bypassDup && nearbyDuplicates[domain]) {
+      setTimeout(() => setDupDetected(true), 300);
+    }
+  } catch (error) {
+    console.error("GPS error:", error);
+    alert("Please allow location access for CityZen.");
   }
+}
 
   function handleDomainChange(d: string) {
     setDomain(d);
@@ -502,17 +538,36 @@ function ReportModal({ open, close }: { open: boolean; close: () => void }) {
 
 async function submit() {
   try {
+    const position = await new Promise<GeolocationPosition>(
+      (resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          }
+        );
+      }
+    );
+
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
     const response = await fetch(`${API_BASE_URL}/complaints`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-  category: domain,
-  description: note,
-  location: "Vasant Vihar, Delhi",
-  photo: photo ? photo.name : null,
-}),
+        category: domain,
+        description: note,
+        location: "Delhi",
+        latitude: latitude,
+        longitude: longitude,
+        photo: photo ? photo.name : null,
+      }),
     });
 
     const data = await response.json();
@@ -522,16 +577,15 @@ async function submit() {
 
     setToastMsg({
       pts: 5,
-      label: "5 pts earned! 15 more after verification.",
+      label: "5 pts earned. 15 more after verification.",
     });
-
-    setToast(true);
-
-    setTimeout(() => setToast(false), 2500);
-
   } catch (error) {
     console.error("Error submitting complaint:", error);
-    alert("Could not submit complaint. Is the backend running?");
+
+    setToastMsg({
+      pts: 0,
+      label: "Please allow location access and try again.",
+    });
   }
 }
 
@@ -639,7 +693,9 @@ async function submit() {
             style={{ background: locationSet ? "#063B2840" : undefined, borderColor: locationSet ? "#4ade80" : undefined }}>
             <span>📍</span>
             <span style={{ flex: 1, textAlign: "left", color: locationSet ? "#4ade80" : "#94a3b8" }}>
-              {locationSet ? "Vasant Vihar, Outer Ring Rd, Delhi" : "Use Current Location"}
+              {locationSet && userLocation
+              ? `${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`
+              : "Use Current Location"}
             </span>
             {locationSet && <span style={{ color: "#4ade80", fontSize: 11 }}>✓</span>}
           </button>
@@ -1206,7 +1262,7 @@ function Home() {
             </div>
             <span style={{ fontSize: 10, color: "#64748b" }}>Delhi · Ward 23</span>
           </div>
-          <DarkCityMap />
+          <DelhiMap />
         </div>
       </div>
 

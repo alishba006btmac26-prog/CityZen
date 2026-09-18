@@ -32,11 +32,25 @@ CREATE TABLE IF NOT EXISTS complaints (
     category TEXT,
     description TEXT,
     location TEXT,
+    latitude REAL,
+    longitude REAL,
     status TEXT,
     resolution_description TEXT,
     resolution_photo TEXT
 )
 """)
+
+conn.commit()
+# Add GPS columns to existing complaints table
+try:
+    cursor.execute("ALTER TABLE complaints ADD COLUMN latitude REAL")
+except sqlite3.OperationalError:
+    pass
+
+try:
+    cursor.execute("ALTER TABLE complaints ADD COLUMN longitude REAL")
+except sqlite3.OperationalError:
+    pass
 
 conn.commit()
 # Seed demo complaints when running on a fresh deployment
@@ -93,6 +107,8 @@ class Complaint(BaseModel):
     category: str
     description: str
     location: str
+    latitude: float
+    longitude: float
 
 
 @app.post("/complaints")
@@ -100,13 +116,15 @@ def create_complaint(complaint: Complaint):
 
     cursor.execute(
         """
-        INSERT INTO complaints (category, description, location, status)
-        VALUES (?, ?, ?, ?)
+       INSERT INTO complaints (category, description, location, latitude, longitude, status)
+VALUES (?, ?, ?, ?, ?, ?)
         """,
         (
             complaint.category,
             complaint.description,
             complaint.location,
+            complaint.latitude,
+            complaint.longitude,
             "Reported"
         )
     )
@@ -159,7 +177,7 @@ def get_complaints():
 
     cursor.execute(
         """
-        SELECT id, category, description, location, status
+        SELECT id, category, description, location, latitude, longitude, status
         FROM complaints
         ORDER BY id DESC
         """
@@ -171,12 +189,14 @@ def get_complaints():
 
     for complaint in complaints:
         result.append({
-            "complaint_id": f"CZ-2026-{complaint[0]:04d}",
-            "category": complaint[1],
-            "description": complaint[2],
-            "location": complaint[3],
-            "status": complaint[4]
-        })
+    "complaint_id": f"CZ-2026-{complaint[0]:04d}",
+    "category": complaint[1],
+    "description": complaint[2],
+    "location": complaint[3],
+    "latitude": complaint[4],
+    "longitude": complaint[5],
+    "status": complaint[6]
+})
 
     return result
 
