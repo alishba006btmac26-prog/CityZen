@@ -602,6 +602,11 @@ const response = await fetch(`${API_BASE_URL}/complaints`, {
 });
 
     const data = await response.json();
+    localStorage.setItem("cityzen_badge_first_report", "true");
+
+if (photo) {
+  localStorage.setItem("cityzen_badge_photo", "true");
+}
     const currentPoints = Number(
   localStorage.getItem("cityzen_civic_points") || "1450"
 );
@@ -1326,6 +1331,7 @@ localStorage.setItem(
 );
 
 window.dispatchEvent(new Event("civicPointsUpdated"));
+localStorage.setItem("cityzen_badge_challenge", "true");
 
 alert("Challenge submitted successfully");
 setStep("reopened");
@@ -1443,7 +1449,7 @@ return (
 
     window.dispatchEvent(new Event("civicPointsUpdated"));
 
-    
+    localStorage.setItem("cityzen_badge_verify", "true");
     setStep("done");
   }}
 >
@@ -2100,12 +2106,39 @@ useEffect(() => {
   const av = avatars[selectedAvatar];
 
   const sbtBadges = [
-    { icon: "🕳", label: "Pothole Hunter", level: "Level 3", color: "#FFC107", network: "Polygon" },
-    { icon: "🌊", label: "Yamuna Sentinel", level: "Verified", color: "#60a5fa", network: "Base" },
-    { icon: "✓", label: "Top 5% Verifier", level: "Elite", color: "#4ade80", network: "Polygon" },
-    { icon: "🌿", label: "Eco Volunteer", level: "Level 2", color: "#a78bfa", network: "Polygon" },
-  ];
-
+  {
+    icon: "📝",
+    label: "First Report",
+    level: "Unlocked",
+    color: "#FFC107",
+    network: "Polygon",
+    unlocked: localStorage.getItem("cityzen_badge_first_report") === "true",
+  },
+  {
+    icon: "📸",
+    label: "Evidence Collector",
+    level: "Unlocked",
+    color: "#60a5fa",
+    network: "Base",
+    unlocked: localStorage.getItem("cityzen_badge_photo") === "true",
+  },
+  {
+    icon: "✓",
+    label: "Resolution Verifier",
+    level: "Unlocked",
+    color: "#4ade80",
+    network: "Polygon",
+    unlocked: localStorage.getItem("cityzen_badge_verify") === "true",
+  },
+  {
+    icon: "⚠️",
+    label: "Civic Watchdog",
+    level: "Unlocked",
+    color: "#a78bfa",
+    network: "Polygon",
+    unlocked: localStorage.getItem("cityzen_badge_challenge") === "true",
+  },
+];
   const rewards = [
     { icon: "🚇", title: "Delhi Metro Travel Pass", discount: "10% OFF", cost: 500, color: "#1e3a5f", accent: "#60a5fa" },
     { icon: "🅿", title: "Free 2-Hour MCD Parking", discount: "FREE", cost: 300, color: "#2d1f00", accent: "#FFC107" },
