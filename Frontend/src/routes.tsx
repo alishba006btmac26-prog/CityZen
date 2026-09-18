@@ -339,6 +339,7 @@ function DarkCityMap({ height = 240 }: { height?: number }) {
 
 /* ─── City Status Card ─── */
 function CityStatusScreen({ close }: { close: () => void }) {
+  const navigate = useNavigate();
   return (
     <div className="modal-backdrop" onClick={close}>
       <section className="dark-sheet" style={{ maxHeight: "92vh", paddingBottom: 24 }} onClick={e => e.stopPropagation()}>
@@ -386,7 +387,7 @@ function CityStatusScreen({ close }: { close: () => void }) {
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "#1C2128", border: `1px solid ${h.sev}44`, borderRadius: 10, marginBottom: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: h.sev, flexShrink: 0 }} />
             <span style={{ flex: 1, fontSize: 12, color: "#f1f5f9", lineHeight: 1.4 }}>{h.txt}</span>
-            <button style={{ background: "#FFC10720", color: "#FFC107", border: "1px solid #FFC10740", borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 700 }}>Track</button>
+            <button style={{ background: "#FFC10720", color: "#FFC107", border: "1px solid #FFC10740", borderRadius: 8, padding: "4px 10px", fontSize: 10, cursor: "pointer", fontWeight: 700 }}onClick={() => navigate("/app/social")}>Track</button>
           </div>
         ))}
         <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", margin: "12px 0 8px" }}>Upcoming Campaigns</b>
@@ -399,7 +400,7 @@ function CityStatusScreen({ close }: { close: () => void }) {
               <b style={{ fontSize: 12, color: "#4ade80" }}>{c.name}</b>
               <p style={{ fontSize: 10, color: "#64748b", marginTop: 2 }}>{c.date} · {c.loc}</p>
             </div>
-            <button style={{ background: "#063B28", color: "#4ade80", border: "1px solid #4ade8040", borderRadius: 8, padding: "6px 12px", fontSize: 11, cursor: "pointer" }}>Join</button>
+            <button style={{ background: "#063B28", color: "#4ade80", border: "1px solid #4ade8040", borderRadius: 8, padding: "6px 12px", fontSize: 11, cursor: "pointer" }}onClick={() => navigate("/app/volunteer")}>Join</button>
           </div>
         ))}
       </section>
@@ -1078,6 +1079,129 @@ useEffect(() => {
   );
 }
 /* ─── Resolution Verify Modal ─── */
+function VerifyComplaintListModal({
+  open,
+  close,
+  onSelect,
+}: {
+  open: boolean;
+  close: () => void;
+  onSelect: (complaint: any) => void;
+}) {
+  const [complaints, setComplaints] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+
+    setLoading(true);
+
+    fetch(`${API_BASE_URL}/complaints`)
+      .then((response) => response.json())
+      .then((data) => {
+        const reported = data.filter(
+          (complaint: any) =>
+            complaint.status === "Reported" ||
+            complaint.status === "reported"
+        );
+
+        setComplaints(reported);
+      })
+      .catch((error) => {
+        console.error("Error loading reported complaints:", error);
+        setComplaints([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [open]);
+
+  return (
+    <Modal open={open} close={close}>
+      <section onClick={(e) => e.stopPropagation()}>
+        <span
+          className="eyebrow"
+          style={{ color: "#4ade80" }}
+        >
+          CITIZEN REPORTS
+        </span>
+
+        <h2
+          style={{
+            color: "#f1f5f9",
+            fontSize: 20,
+            margin: "6px 0 4px",
+          }}
+        >
+          Select a complaint to verify
+        </h2>
+
+        <p
+          style={{
+            fontSize: 11,
+            color: "#64748b",
+            marginBottom: 14,
+          }}
+        >
+          Choose one of your reported complaints.
+        </p>
+
+        {loading ? (
+          <p style={{ color: "#94a3b8" }}>
+            Loading complaints...
+          </p>
+        ) : complaints.length === 0 ? (
+          <p style={{ color: "#94a3b8" }}>
+            No reported complaints found.
+          </p>
+        ) : (
+          <div style={{ display: "grid", gap: 10 }}>
+            {complaints.map((complaint: any) => (
+              <button
+                key={complaint.complaint_id}
+                onClick={() => onSelect(complaint)}
+                style={{
+                  textAlign: "left",
+                  background: "#1c2128",
+                  border: "1px solid #2d3748",
+                  borderRadius: 12,
+                  padding: 14,
+                  cursor: "pointer",
+                  color: "#f1f5f9",
+                }}
+              >
+                <b style={{ display: "block", marginBottom: 5 }}>
+                  {complaint.complaint_id}
+                </b>
+
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: 12,
+                    color: "#94a3b8",
+                  }}
+                >
+                  {complaint.category}
+                </span>
+
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: 11,
+                    color: "#64748b",
+                    marginTop: 4,
+                  }}
+                >
+                  {complaint.location}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+    </Modal>
+  );
+}
 function ResolutionVerifyModal({ open, close }: { open: boolean; close: () => void }) {
   const [step, setStep] = useState<"verify" | "challenge" | "done" | "reopened">("verify");
   const [reason, setReason] = useState("");
@@ -1150,6 +1274,8 @@ function Home() {
   const [reportOpen, setReportOpen] = useState(false);
   const [trackerOpen, setTrackerOpen] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState(false);
+  const [verifyListOpen, setVerifyListOpen] = useState(false);
+  const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
   const [cityOpen, setCityOpen] = useState(false);
   const [impactIdx, setImpactIdx] = useState<number | null>(null);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -1189,7 +1315,7 @@ function Home() {
             <span className="dk-cta-icon" style={{ background: "#1e3a5f", color: "#60a5fa" }}>⌁</span>
             <div><b>Track Reports</b><small>2 updates</small></div>
           </button>
-          <button className="dk-cta-card" onClick={() => setVerifyOpen(true)}>
+          <button className="dk-cta-card" onClick={() => setVerifyListOpen(true)}>
             <span className="dk-cta-icon" style={{ background: "#063B28", color: "#4ade80" }}>✓</span>
             <div><b>Verify Fix</b><small>1 awaiting</small></div>
           </button>
@@ -1214,7 +1340,20 @@ function Home() {
 
       <ReportModal open={reportOpen} close={() => setReportOpen(false)} />
       <TrackModal open={trackerOpen} close={() => setTrackerOpen(false)} />
-      <ResolutionVerifyModal open={verifyOpen} close={() => setVerifyOpen(false)} />
+      <VerifyComplaintListModal
+  open={verifyListOpen}
+  close={() => setVerifyListOpen(false)}
+  onSelect={(complaint) => {
+    setSelectedComplaint(complaint);
+    setVerifyListOpen(false);
+    setVerifyOpen(true);
+  }}
+/>
+
+<ResolutionVerifyModal
+  open={verifyOpen}
+  close={() => setVerifyOpen(false)}
+/>
       {cityOpen && <CityStatusScreen close={() => setCityOpen(false)} />}
       {impactIdx !== null && <ImpactModal idx={impactIdx} close={() => setImpactIdx(null)} />}
     </>
@@ -1316,18 +1455,50 @@ function Social() {
   const [tab, setTab] = useState<"upvote" | "feed">("upvote");
   const [upvoteCounts, setUpvoteCounts] = useState<Record<string, number>>(Object.fromEntries(upvotePosts.map(p => [p.id, p.upvotes])));
   const [upvoted, setUpvoted] = useState<Record<string, boolean>>({});
+  const [downvoted, setDownvoted] = useState<Record<string, boolean>>({});
   const [liked, setLiked] = useState<Record<number, boolean>>({});
   const [disliked, setDisliked] = useState<Record<number, boolean>>({});
   const [showCreate, setShowCreate] = useState(false);
-  const [heartOpen, setHeartOpen] = useState(false);
+  const [showStoryCreate, setShowStoryCreate] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [storyIdx, setStoryIdx] = useState<number | null>(null);
   const [trackingPost, setTrackingPost] = useState<typeof upvotePosts[0] | null>(null);
 
   function handleUpvote(id: string) {
-    setUpvoteCounts(c => ({ ...c, [id]: c[id] + (upvoted[id] ? -1 : 1) }));
-    setUpvoted(u => ({ ...u, [id]: !u[id] }));
+  setUpvoteCounts(c => ({
+    ...c,
+    [id]: c[id] + (upvoted[id] ? -1 : 1),
+  }));
+
+  setUpvoted(u => ({
+    ...u,
+    [id]: !u[id],
+  }));
+
+  setDownvoted(d => ({
+    ...d,
+    [id]: false,
+  }));
+}
+
+function handleDownvote(id: string) {
+  if (upvoted[id]) {
+    setUpvoteCounts(c => ({
+      ...c,
+      [id]: c[id] - 1,
+    }));
   }
+
+  setUpvoted(u => ({
+    ...u,
+    [id]: false,
+  }));
+
+  setDownvoted(d => ({
+    ...d,
+    [id]: !d[id],
+  }));
+}
 
   const stories = [
     { label: "You", init: "+", bg: "#063B28", isYou: true },
@@ -1344,37 +1515,28 @@ function Social() {
       <div className="dk-social-head">
         <b>City<em style={{ color: "#FFC107", fontStyle: "normal" }}>Zen</em></b>
         <div style={{ display: "flex", gap: 8, marginLeft: "auto", alignItems: "center" }}>
-          <button className="dk-icon-btn" onClick={() => setShowCreate(true)}><span>＋</span></button>
-          <button className="dk-icon-btn" style={{ position: "relative" }} onClick={() => setHeartOpen(!heartOpen)}>
-            <span>♡</span><i className="dk-badge" />
-          </button>
           <button className="dk-icon-btn" style={{ position: "relative" }} onClick={() => setNotifOpen(!notifOpen)}>
             <span>🔔</span><i className="dk-badge" />
           </button>
         </div>
       </div>
 
-      {/* Activity dropdown */}
-      {heartOpen && (
-        <div className="dk-dropdown">
-          <div className="dk-dropdown-head"><b>Activity</b><button onClick={() => setHeartOpen(false)}>✕</button></div>
-          <div className="dk-dropdown-row">♡ Citizen #DEL-4912 upvoted your post</div>
-          <div className="dk-dropdown-row">💬 Citizen #DEL-6340 commented on your post</div>
-          <div className="dk-dropdown-row">♡ Citizen #DEL-8821 upvoted your comment</div>
-        </div>
-      )}
+     
       {notifOpen && (
         <div className="dk-dropdown">
           <div className="dk-dropdown-head"><b>Notifications</b><button onClick={() => setNotifOpen(false)}>✕</button></div>
           <div className="dk-dropdown-row" style={{ color: "#4ade80" }}>✓ Your report CZ-2026-0048 was verified</div>
           <div className="dk-dropdown-row" style={{ color: "#FFC107" }}>⚡ CZ-2026-0091 needs your verification</div>
+          <div className="dk-dropdown-row">♡ Citizen #DEL-4912 upvoted your post</div>
+          <div className="dk-dropdown-row">💬 Citizen #DEL-6340 commented on your post</div>
+          <div className="dk-dropdown-row">♡ Citizen #DEL-8821 upvoted your comment</div>
         </div>
       )}
 
       {/* Stories */}
       <div className="dk-stories">
         {stories.map((s, i) => (
-          <div key={i} className="dk-story-item" onClick={() => s.isYou ? setShowCreate(true) : setStoryIdx(i)}>
+          <div key={i} className="dk-story-item" onClick={() => s.isYou ? setShowStoryCreate(true) : setStoryIdx(i)}>
             <div className="dk-story-avatar" style={{ background: s.bg, borderColor: s.isYou ? "#FFC107" : "#4ade80" }}>
               {s.isYou ? <span style={{ fontSize: 18, color: "#FFC107" }}>+</span> : <span style={{ fontSize: 10, color: "#4ade80" }}>◉</span>}
             </div>
@@ -1419,9 +1581,18 @@ function Social() {
                   className={`dk-upvote-action-btn ${upvoted[p.id] ? "dk-upvoted" : ""} ${p.isOwn ? "dk-own-disabled" : ""}`}
                   onClick={() => !p.isOwn && handleUpvote(p.id)}
                   title={p.isOwn ? "You cannot upvote your own report" : ""}>
-                  ▲ Upvote ({upvoteCounts[p.id]})
+                {upvoted[p.id]
+  ? `▲ Upvoted (${upvoteCounts[p.id]})`
+  : `▲ Upvote (${upvoteCounts[p.id]})`}
                   {p.isOwn && <span className="dk-own-tag">Your post</span>}
                 </button>
+                <button
+  className={`dk-upvote-action-btn ${downvoted[p.id] ? "dk-upvoted" : ""} ${p.isOwn ? "dk-own-disabled" : ""}`}
+  onClick={() => !p.isOwn && handleDownvote(p.id)}
+  title={p.isOwn ? "You cannot downvote your own report" : "Downvote this report"}
+>
+   {downvoted[p.id] ? "▲ Downvoted" : "▲ Downvote"}
+</button>
                 <button className="dk-track-btn" onClick={() => setTrackingPost(p)}>
                   📍 Track Problem
                 </button>
@@ -1479,15 +1650,45 @@ function Social() {
       )}
 
       {/* Create modal */}
-      {showCreate && (
-        <div className="modal-backdrop" onClick={() => setShowCreate(false)}>
+    {(showCreate || showStoryCreate) && (
+<div
+  className="modal-backdrop"
+  onClick={() => {
+    setShowCreate(false);
+    setShowStoryCreate(false);
+  }}
+>
           <section className="dark-sheet" onClick={e => e.stopPropagation()}>
-            <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setShowCreate(false)}>×</button>
+        <button
+  className="sheet-close"
+  style={{ color: "#94a3b8" }}
+  onClick={() => {
+    setShowCreate(false);
+    setShowStoryCreate(false);
+  }}
+>
+  ×
+</button>
             <div className="sheet-handle" style={{ background: "#334155" }} />
             <span className="eyebrow" style={{ color: "#FFC107" }}>CREATE</span>
             <h2 style={{ color: "#f1f5f9", margin: "6px 0 16px" }}>What would you like to share?</h2>
-            {[["📸", "Add Story", "Disappears in 24 hours"], ["🎬", "Upload Reel / Short Video", "Short civic video clip"], ["📋", "Create Post", "Regular civic post"]].map(([ic, t, d]) => (
-              <button key={t} onClick={() => setShowCreate(false)}
+            {(
+  showStoryCreate
+    ? [
+        ["📷", "Add Story", "Disappears in 24 hours"],
+        ["📊", "Create a Poll (Ask People)", "Ask citizens and collect responses"],
+      ]
+    : [
+        ["🎥", "Upload Reel / Short Video", "Short civic video clip"],
+        ["📝", "Create Post", "Regular civic post"],
+      ]
+).map(([ic, t, d]) => (
+<button
+  key={t}
+  onClick={() => {
+    setShowCreate(false);
+    setShowStoryCreate(false);
+  }}
                 style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", background: "#1C2128", border: "1px solid #2d3748", borderRadius: 12, padding: "12px 14px", marginBottom: 8, cursor: "pointer" }}>
                 <span style={{ fontSize: 22 }}>{ic}</span>
                 <div style={{ textAlign: "left" }}><b style={{ color: "#f1f5f9", fontSize: 13, display: "block" }}>{t}</b><span style={{ fontSize: 11, color: "#64748b" }}>{d}</span></div>
@@ -1522,13 +1723,46 @@ function Volunteer() {
   const [mintedDrive, setMintedDrive] = useState<typeof sbtDrives[0] | null>(null);
   const [notifOpen, setNotifOpen] = useState(false);
   const [slide, setSlide] = useState(0);
+  const [followedOrgs, setFollowedOrgs] = useState<Record<string, boolean>>({});
+  const [selectedOrg, setSelectedOrg] = useState<any>(null);
+
+const volunteerOrgs = [
+{ 
+  id: "green-delhi",
+  icon: "🌱",
+  name: "Green Delhi",
+  type: "NGO",
+  about: "A community organisation working to make Delhi cleaner, greener and more sustainable.",
+  area: "Delhi",
+  drives: [
+    "Tree Plantation Drive",
+    "Yamuna Clean-up Drive",
+    "Waste Segregation Awareness Campaign"
+  ],
+  campaigns: [
+    "Clean Neighbourhood Campaign",
+    "Say No to Single-Use Plastic"
+  ],
+  impact: [
+    "2,500+ trees planted",
+    "18 neighbourhood clean-up drives",
+    "1,200+ citizens reached"
+  ],
+  volunteers: "350+ active volunteers"
+},
+  { id: "youth-club", icon: "🤝", name: "Delhi Youth Club", type: "Club" },
+  { id: "health-care", icon: "🏥", name: "Community Health", type: "Organisation" },
+  { id: "paws-care", icon: "🐾", name: "Paws & Care", type: "NGO" },
+  { id: "edu-connect", icon: "📚", name: "Edu Connect", type: "Club" },
+  { id: "clean-city", icon: "🌳", name: "Clean City Collective", type: "Organisation" },
+];
   useEffect(() => { const t = setInterval(() => setSlide(s => (s + 1) % sbtDrives.length), 4200); return () => clearInterval(t); }, []);
 
   const heroD = sbtDrives[slide];
 
   return (
     <>
-      <div className="screen dk-screen" style={{ paddingBottom: 100 }}>
+      <div className="screen dk-screen" style={{ paddingBottom: 160 }}>
         {/* Top bar */}
         <div className="dark-topbar">
           <div className="dk-search">
@@ -1612,7 +1846,120 @@ function Volunteer() {
       </div>
 
       {/* SBT Registration modal */}
-      {sbtModal && (
+      {/* Follow Organisations */}
+<div style={{ marginTop: -100, marginBottom: 80 }}>
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+    <div>
+      <span className="eyebrow" style={{ color: "#4ade80" }}>DISCOVER & FOLLOW</span>
+      <h2 style={{ color: "#f1f5f9", margin: "5px 0 2px", fontSize: 20 }}>
+        Organisations you may like
+      </h2>
+      <p style={{ color: "#94a3b8", fontSize: 11, margin: 0 }}>
+        Follow NGOs, clubs and civic organisations to stay updated.
+      </p>
+    </div>
+  </div>
+
+  <div
+  onWheel={(e) => {
+    e.currentTarget.scrollLeft += e.deltaY;
+  }}
+  style={{
+    display: "flex",
+    gap: 12,
+    overflowX: "scroll",
+    paddingBottom: 12,
+    scrollbarWidth: "auto",
+    WebkitOverflowScrolling: "touch",
+    cursor: "grab",
+  }}
+>
+    {volunteerOrgs.map(org => (
+      <div
+        key={org.id}
+        style={{
+          minWidth: 190,
+          background: "#1c2128",
+          border: "1px solid #2d3748",
+          borderRadius: 16,
+          padding: 14,
+          flexShrink: 0,
+          position: "relative",
+        }}
+      >
+        <button
+  onClick={() => setSelectedOrg(org)}
+  style={{
+    position: "absolute",
+    top: 10,
+    right: 10,
+    width: 30,
+    height: 30,
+    borderRadius: "50%",
+    border: "1px solid #334155",
+    background: "#0f172a",
+    color: "#ffffff",
+    cursor: "pointer",
+    fontSize: 16,
+    zIndex: 2,
+  }}
+>
+  →
+</button>
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: "50%",
+            background: "#111827",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 24,
+            marginBottom: 10,
+          }}
+        >
+          {org.icon}
+        </div>
+
+        <b style={{ color: "#f1f5f9", fontSize: 14, display: "block" }}>
+          {org.name}
+        </b>
+
+        <span
+          style={{
+            color: "#64748b",
+            fontSize: 10,
+            display: "block",
+            marginTop: 4,
+            marginBottom: 12,
+          }}
+        >
+          {org.type}
+        </span>
+
+        <button
+          className="amber-btn"
+          style={{
+  width: "100%",
+  height: 38,
+  fontSize: 12,
+  marginBottom: 2,
+}}
+          onClick={() =>
+            setFollowedOrgs(prev => ({
+              ...prev,
+              [org.id]: !prev[org.id],
+            }))
+          }
+        >
+          {followedOrgs[org.id] ? "✓ Following" : "Follow"}
+        </button>
+      </div>
+    ))}
+  </div>
+</div>
+{sbtModal && (
         <div className="modal-backdrop" onClick={() => setSbtModal(null)}>
           <section className="dark-sheet" onClick={e => e.stopPropagation()}>
             <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setSbtModal(null)}>×</button>
@@ -1656,7 +2003,251 @@ function Volunteer() {
           </section>
         </div>
       )}
-    </>
+   
+
+
+{/* NGO Detail Modal */}
+{selectedOrg && (
+  <div
+    className="modal-backdrop"
+    onClick={() => setSelectedOrg(null)}
+  >
+    <section
+      className="dark-sheet"
+      onClick={e => e.stopPropagation()}
+      style={{ maxHeight: "80vh", overflowY: "auto" }}
+    >
+      <button
+        className="sheet-close"
+        style={{ color: "#94a3b8" }}
+        onClick={() => setSelectedOrg(null)}
+      >
+        ×
+      </button>
+
+      <div
+        style={{
+          width: 58,
+          height: 58,
+          borderRadius: "50%",
+          background: "#111827",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 30,
+          margin: "10px auto",
+        }}
+      >
+        {selectedOrg.icon}
+      </div>
+
+      <span
+        className="eyebrow"
+        style={{
+          color: "#4ade80",
+          display: "block",
+          textAlign: "center",
+        }}
+      >
+        {selectedOrg.type}
+      </span>
+
+      <h2
+        style={{
+          color: "#f1f5f9",
+          textAlign: "center",
+          margin: "6px 0",
+        }}
+      >
+        {selectedOrg.name}
+      </h2>
+
+      <p
+        style={{
+          color: "#94a3b8",
+          fontSize: 12,
+          lineHeight: 1.6,
+          textAlign: "center",
+        }}
+      >
+        Building a cleaner, safer and more connected community
+        through citizen-led initiatives.
+      </p>
+
+      <div
+        style={{
+          background: "#1c2128",
+          border: "1px solid #2d3748",
+          borderRadius: 14,
+          padding: 14,
+          marginTop: 14,
+        }}
+      >
+        <b style={{ color: "#f1f5f9" }}>About</b>
+
+        <p
+          style={{
+            color: "#94a3b8",
+            fontSize: 12,
+            lineHeight: 1.6,
+            marginBottom: 0,
+          }}
+        >
+          {selectedOrg.name} works with citizens and local communities
+          to support civic activities, awareness campaigns and
+          neighbourhood improvement.
+        </p>
+      </div>
+<div
+  style={{
+    background: "#1c2128",
+    border: "1px solid #2d3748",
+    borderRadius: 14,
+    padding: 14,
+    marginTop: 12,
+  }}
+>
+  <b style={{ color: "#f1f5f9" }}>🚗 Drives & Campaigns</b>
+  <p style={{ color: "#94a3b8", fontSize: 12, lineHeight: 1.6, marginTop: 8 }}>
+    🌱 Tree Plantation Drive
+    <br />
+    💧 Clean Water & Yamuna Campaign
+    <br />
+    🏙️ Community Cleanliness Drive
+  </p>
+</div>
+
+<div
+  style={{
+    background: "#1c2128",
+    border: "1px solid #2d3748",
+    borderRadius: 14,
+    padding: 14,
+    marginTop: 12,
+  }}
+>
+  <b style={{ color: "#f1f5f9" }}>📊 Impact</b>
+  <p style={{ color: "#94a3b8", fontSize: 12, lineHeight: 1.6, marginTop: 8 }}>
+    🌳 12,500+ trees planted
+    <br />
+    👥 8,000+ citizens involved
+    <br />
+    🏘️ 15+ communities reached
+  </p>
+</div>
+
+<div
+  style={{
+    background: "#1c2128",
+    border: "1px solid #2d3748",
+    borderRadius: 14,
+    padding: 14,
+    marginTop: 12,
+  }}
+>
+  <b style={{ color: "#f1f5f9" }}>📍 Areas Served</b>
+  <p style={{ color: "#94a3b8", fontSize: 12, marginTop: 8 }}>
+    Delhi NCR
+  </p>
+</div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 10,
+          marginTop: 12,
+        }}
+      >
+        <div
+          style={{
+            background: "#1c2128",
+            border: "1px solid #2d3748",
+            borderRadius: 12,
+            padding: 12,
+          }}
+        >
+          <span style={{ color: "#64748b", fontSize: 10 }}>
+            FOCUS
+          </span>
+          <b
+            style={{
+              color: "#f1f5f9",
+              display: "block",
+              marginTop: 5,
+              fontSize: 13,
+            }}
+          >
+            Community Impact
+          </b>
+        </div>
+
+        <div
+          style={{
+            background: "#1c2128",
+            border: "1px solid #2d3748",
+            borderRadius: 12,
+            padding: 12,
+          }}
+        >
+          <span style={{ color: "#64748b", fontSize: 10 }}>
+            FOLLOWERS
+          </span>
+          <b
+            style={{
+              color: "#f1f5f9",
+              display: "block",
+              marginTop: 5,
+              fontSize: 13,
+            }}
+          >
+            1.2K citizens
+          </b>
+        </div>
+      </div>
+
+      <div
+        style={{
+          background: "#1c2128",
+          border: "1px solid #2d3748",
+          borderRadius: 14,
+          padding: 14,
+          marginTop: 12,
+        }}
+      >
+        <b style={{ color: "#f1f5f9" }}>Active initiatives</b>
+
+        <p
+          style={{
+            color: "#94a3b8",
+            fontSize: 12,
+            lineHeight: 1.6,
+            marginBottom: 0,
+          }}
+        >
+          🌱 Local clean-up drives<br />
+          🤝 Community volunteering<br />
+          📢 Civic awareness campaigns
+        </p>
+      </div>
+
+      <button
+        className="amber-btn"
+        style={{ width: "100%", marginTop: 16 }}
+        onClick={() => {
+          setFollowedOrgs(prev => ({
+            ...prev,
+            [selectedOrg.id]: !prev[selectedOrg.id],
+          }));
+        }}
+      >
+        {followedOrgs[selectedOrg.id]
+          ? "✓ Following"
+          : "Follow"}
+      </button>
+    </section>
+  </div>
+)}
+</>
   );
 }
 
