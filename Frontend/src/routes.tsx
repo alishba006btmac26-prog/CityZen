@@ -1260,7 +1260,7 @@ function VerifyComplaintListModal({
     </Modal>
   );
 }
-function ResolutionVerifyModal({ open, close }: { open: boolean; close: () => void }) {
+function ResolutionVerifyModal({ open, close, reportIndex }: { open: boolean; close: () => void; reportIndex: number }) {const currentReport = upvotePosts[reportIndex];
   const [step, setStep] = useState<"verify" | "challenge" | "done" | "reopened">("verify");
   const [reason, setReason] = useState("");
   const [challengePhoto, setChallengePhoto] = useState<File | null>(null);
@@ -1489,6 +1489,7 @@ return (
 
 /* ─── Home ─── */
 function Home() {
+  const [verifyIndex, setVerifyIndex] = useState(0);
   const navigate = useNavigate();
   const [reportOpen, setReportOpen] = useState(false);
   const [trackerOpen, setTrackerOpen] = useState(false);
