@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -5,6 +6,13 @@ import sqlite3
 from pathlib import Path
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8443", "http://127.0.0.1:8443"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Connect to the CityZen database
 DB_PATH = Path(__file__).resolve().parent.parent / "cityzen.db"
@@ -39,6 +47,31 @@ CREATE TABLE IF NOT EXISTS complaints (
     resolution_photo TEXT
 )
 """)
+
+conn.commit()
+# Create users table
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    mobile_number TEXT UNIQUE NOT NULL,
+    mobile_verified INTEGER DEFAULT 0,
+    email TEXT,
+    password TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
+conn.commit()
+# Add OTP fields to users table
+try:
+    cursor.execute("ALTER TABLE users ADD COLUMN otp TEXT")
+except sqlite3.OperationalError:
+    pass
+
+try:
+    cursor.execute("ALTER TABLE users ADD COLUMN otp_expires_at TEXT")
+except sqlite3.OperationalError:
+    pass
 
 conn.commit()
 # Add GPS columns to existing complaints table
@@ -103,6 +136,102 @@ except sqlite3.OperationalError:
 @app.get("/")
 def home():
     return {"message": "Welcome to CityZen!"}
+class OTPRequest(BaseModel):
+    mobile_number: str
+
+
+@app.post("/send-otp")
+def send_otp(request: OTPRequest):
+    print("SEND OTP ENDPOINT HIT")
+
+    mobile = request.mobile_number
+
+    # Validate Indian mobile number
+    if not mobile.isdigit() or len(mobile) != 10 or mobile[0] not in "6789":
+        return {
+            "success": False,
+            "message": "Please enter a valid 10-digit Indian mobile number."
+        }
+
+    # Generate a 6-digit OTP
+    import random
+    otp = str(random.randint(100000, 999999))
+
+    # Save/update user
+    cursor.execute(
+        """
+        INSERT INTO users (mobile_number, otp, otp_expires_at)
+        VALUES (?, ?, datetime('now', '+5 minutes'))
+        ON CONFLICT(mobile_number)
+        DO UPDATE SET
+            otp = excluded.otp,
+            otp_expires_at = excluded.otp_expires_at
+        """,
+        (mobile, otp)
+    )
+
+    conn.commit()
+
+    # Temporary: show OTP in response for local testing
+    return {
+        "success": True,
+        "message": "OTP generated successfully.",
+        "otp": otp
+    }
+class VerifyOTPRequest(BaseModel):
+    mobile_number: str
+    otp: str
+
+
+@app.post("/verify-otp")
+def verify_otp(request: VerifyOTPRequest):
+
+    mobile = request.mobile_number
+    entered_otp = request.otp
+
+    cursor.execute(
+        """
+        SELECT id, otp, otp_expires_at
+        FROM users
+        WHERE mobile_number = ?
+        """,
+        (mobile,)
+    )
+
+    user = cursor.fetchone()
+
+    if user is None:
+        return {
+            "success": False,
+            "message": "User not found. Please request OTP first."
+        }
+
+    user_id, saved_otp, otp_expires_at = user
+
+    if saved_otp != entered_otp:
+        return {
+            "success": False,
+            "message": "Invalid OTP."
+        }
+
+    cursor.execute(
+        """
+        UPDATE users
+        SET mobile_verified = 1,
+            otp = NULL,
+            otp_expires_at = NULL
+        WHERE id = ?
+        """,
+        (user_id,)
+    )
+
+    conn.commit()
+
+    return {
+        "success": True,
+        "message": "Mobile number verified successfully.",
+        "user_id": user_id
+    }
 class Complaint(BaseModel):
     category: str
     description: str

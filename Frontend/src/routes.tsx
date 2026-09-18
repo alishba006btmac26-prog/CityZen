@@ -2043,17 +2043,89 @@ function CitizenVerify() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [done, setDone] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [demoOtp, setDemoOtp] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
   const [termsOpen, setTermsOpen] = useState(false);
   const [citizenId] = useState(genCitizenId);
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setDone(true);
-    setTimeout(() => navigate("/app"), 1800);
+async function submit(e: React.FormEvent) {
+  e.preventDefault();
+  console.log("CREATE ACCOUNT CLICKED");
+
+  const cleanedPhone = phone.replace(/\D/g, "");
+
+  if (!/^[6-9]\d{9}$/.test(cleanedPhone)) {
+    setPhoneError("Please enter a valid 10-digit Indian mobile number.");
+    return;
   }
 
-  return (
+  setPhoneError("");
+
+  try {
+    console.log("SENDING OTP REQUEST");
+    const response = await fetch("http://127.0.0.1:8000/send-otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mobile_number: cleanedPhone,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setPhoneError(data.message || "Unable to send OTP.");
+      return;
+    }
+    setDemoOtp(data.otp);
+    setOtpSent(true);
+
+  } catch (error) {
+    console.error("OTP error:", error);
+    setPhoneError("Unable to connect to CityZen server.");
+  }
+}
+async function verifyOTP() {
+  if (otp.length !== 6) {
+    setOtpError("Please enter the 6-digit OTP.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/verify-otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mobile_number: phone,
+        otp: otp,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setOtpError(data.message || "Invalid OTP.");
+      return;
+    }
+
+    setOtpError("");
+    setDone(true);
+
+    setTimeout(() => navigate("/app"), 1000);
+  } catch (error) {
+    console.error("OTP verification error:", error);
+    setOtpError("Unable to connect to CityZen server.");
+  }
+}
+return (
     <>
       <div className="screen dk-welcome-screen" style={{ justifyContent: "flex-start", paddingTop: 20 }}>
         <button style={{ background: "none", border: "none", color: "#64748b", fontSize: 13, cursor: "pointer", alignSelf: "flex-start", marginBottom: 16 }} onClick={() => navigate("/welcome")}>← Back</button>
@@ -2075,19 +2147,137 @@ function CitizenVerify() {
               <h2 style={{ color: "#f1f5f9", fontSize: 20, margin: "14px 0 4px" }}>Citizen Login</h2>
               <p style={{ fontSize: 12, color: "#64748b", marginBottom: 20, textAlign: "center" }}>Your unique Citizen ID is auto-generated on signup.</p>
               <form onSubmit={submit} style={{ width: "100%" }}>
-                {[["email", "Email Address", "you@example.com"], ["password", "Password", "Create a strong password"], ["tel", "Phone Number", "+91 98765 00000"]].map(([type, lbl, ph]) => (
-                  <div key={lbl} style={{ marginBottom: 12 }}>
-                    <label style={{ fontSize: 11, color: "#64748b", display: "block", marginBottom: 4 }}>{lbl}</label>
-                    <input type={type} className="dk-field" placeholder={ph} required
-                      onChange={type === "email" ? e => setEmail(e.target.value) : type === "password" ? e => setPassword(e.target.value) : e => setPhone(e.target.value)}
-                      value={type === "email" ? email : type === "password" ? password : phone} />
-                  </div>
-                ))}
+               {[
+  ["email", "Email Address", "you@example.com"],
+  ["password", "Password", "Create a strong password"],
+  ["tel", "Phone Number", "9876543210"],
+].map(([type, lbl, ph]) => (
+  <div key={lbl} style={{ marginBottom: 12 }}>
+    <label
+      style={{
+        fontSize: 11,
+        color: "#64748b",
+        display: "block",
+        marginBottom: 4,
+      }}
+    >
+      {lbl}
+    </label>
+
+    <input
+      type={type}
+      className="dk-field"
+      placeholder={ph}
+      required
+      maxLength={type === "tel" ? 10 : undefined}
+      inputMode={type === "tel" ? "numeric" : undefined}
+      onChange={(e) => {
+        if (type === "tel") {
+          const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+          setPhone(value);
+          setPhoneError("");
+        } else if (type === "email") {
+          setEmail(e.target.value);
+        } else {
+          setPassword(e.target.value);
+        }
+      }}
+      value={
+        type === "email"
+          ? email
+          : type === "password"
+          ? password
+          : phone
+      }
+    />
+
+    {type === "tel" && phoneError && (
+      <div
+        style={{
+          color: "#f87171",
+          fontSize: 10,
+          marginTop: 5,
+        }}
+      >
+        {phoneError}
+      </div>
+    )}
+  </div>
+))}
                 <div style={{ background: "#1C2128", border: "1px solid #FFC10740", borderRadius: 12, padding: "12px 16px", margin: "14px 0", textAlign: "center" }}>
                   <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4, fontFamily: "DM Mono" }}>YOUR CITIZEN ID (auto-generated)</div>
                   <div style={{ fontFamily: "DM Mono", fontSize: 20, color: "#FFC107", fontWeight: 700 }}>{citizenId}</div>
                 </div>
-                <button type="submit" className="amber-btn" style={{ width: "100%", fontSize: 14 }}>Create Account &amp; Enter</button>
+                
+
+{otpSent && (
+  <div
+    style={{
+      background: "#1C2128",
+      border: "1px solid #4ade8040",
+      borderRadius: 12,
+      padding: "14px 16px",
+      margin: "14px 0",
+    }}
+  >
+    <div
+      style={{
+        color: "#4ade80",
+        fontSize: 12,
+        fontWeight: 700,
+        marginBottom: 6,
+        textAlign: "center",
+      }}
+    >
+      OTP Sent Successfully
+    </div>
+
+    <div
+      style={{
+        color: "#64748b",
+        fontSize: 10,
+        textAlign: "center",
+        marginBottom: 10,
+      }}
+    >
+      Demo OTP: {demoOtp}
+    </div>
+
+    <input
+      type="text"
+      className="dk-field"
+      placeholder="Enter 6-digit OTP"
+      maxLength={6}
+      inputMode="numeric"
+      value={otp}
+      onChange={(e) => {
+        const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+        setOtp(value);
+        setOtpError("");
+      }}
+    />
+
+    {otpError && (
+      <p style={{ color: "#f87171", fontSize: 10, marginTop: 5 }}>
+        {otpError}
+        </p>
+      )}
+
+    <button
+      type="button"
+      className="amber-btn"
+      style={{
+        width: "100%",
+        fontSize: 14,
+        marginTop: 10,
+      }}
+      onClick={verifyOTP}
+    >
+      Verify OTP
+    </button>
+  </div>
+)}
+<button type="submit" className="amber-btn" style={{ width: "100%", fontSize: 14 }}>Create Account &amp; Enter</button>
                 <p style={{ fontSize: 10, color: "#334155", marginTop: 12, textAlign: "center" }}>
                   By signing up you agree to our{" "}
                   <button type="button" onClick={() => setTermsOpen(true)} style={{ background: "none", border: "none", color: "#FFC107", textDecoration: "underline", cursor: "pointer", fontSize: 10 }}>
