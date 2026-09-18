@@ -2060,6 +2060,16 @@ function Profile() {
   const [civicPoints, setCivicPoints] = useState(() =>
   Number(localStorage.getItem("cityzen_civic_points") || "1450")
 );
+const civicLevel =
+  civicPoints >= 5000
+    ? { level: 5, name: "Civic Hero", icon: "👑" }
+    : civicPoints >= 2000
+    ? { level: 4, name: "Civic Leader", icon: "🏆" }
+    : civicPoints >= 1000
+    ? { level: 3, name: "Civic Champion", icon: "⭐" }
+    : civicPoints >= 500
+    ? { level: 2, name: "Civic Contributor", icon: "🌿" }
+    : { level: 1, name: "Civic Beginner", icon: "🌱" };
 
 useEffect(() => {
   const updatePoints = () => {
@@ -2067,6 +2077,8 @@ useEffect(() => {
       Number(localStorage.getItem("cityzen_civic_points") || "0")
     );
   };
+  
+  
 
   window.addEventListener("civicPointsUpdated", updatePoints);
 
@@ -2132,7 +2144,9 @@ useEffect(() => {
           </div>
           <div>
             <div style={{ fontFamily: "DM Mono", fontSize: 15, color: "#FFC107", fontWeight: 700 }}>{citizenId}</div>
-            <div style={{ fontSize: 11, color: "#4ade80", marginTop: 2 }}>Level 3 Civic Champion</div>
+            <div style={{ fontSize: 11, color: "#4ade80", marginTop: 2 }}>
+  {civicLevel.icon} Level {civicLevel.level} · {civicLevel.name}
+</div>
             <div style={{ fontSize: 10, color: "#64748b", marginTop: 2 }}>Vasant Vihar, Delhi · Active since 2024</div>
           </div>
         </div>
