@@ -3,6 +3,16 @@ import { createBrowserRouter, NavLink, Outlet, useNavigate } from "react-router"
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 /* ─── Domain → Authority ─── */
+function addCivicPoints(points: number) {
+  const current = Number(
+    localStorage.getItem("cityzen_civic_points") || "1450"
+  );
+
+  const updated = current + points;
+
+  localStorage.setItem("cityzen_civic_points", updated.toString());
+  window.dispatchEvent(new Event("civicPointsUpdated"));
+}
 const domainAuthority: Record<string, { name: string; id: string; dept: string }> = {
   "Roads":       { name: "Ravi Kumar",   id: "AUTH-DEL-012", dept: "Road Maintenance Dept" },
   "Sanitation":  { name: "Priya Verma",  id: "AUTH-DEL-034", dept: "Sanitation Department" },
@@ -592,14 +602,28 @@ const response = await fetch(`${API_BASE_URL}/complaints`, {
 });
 
     const data = await response.json();
+    const currentPoints = Number(
+  localStorage.getItem("cityzen_civic_points") || "1450"
+);
+
+const pointsEarned = photo ? 30 : 20;
+
+localStorage.setItem(
+  "cityzen_civic_points",
+  String(currentPoints + pointsEarned)
+);
+
+window.dispatchEvent(new Event("civicPointsUpdated"));
 
     setComplaintId(data.complaint_id);
     setSubmitted(true);
 
     setToastMsg({
-      pts: 5,
-      label: "5 pts earned! 15 more after verification.",
-    });
+  pts: pointsEarned,
+  label: photo
+    ? "30 Civic Points earned! +10 for photo evidence."
+    : "20 Civic Points earned!",
+});
 
     setToast(true);
 
@@ -1289,11 +1313,22 @@ if (challengePhoto) {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || "Failed to submit challenge");
-    }
+  throw new Error(data.error || "Failed to submit challenge");
+}
 
-    alert("Challenge submitted successfully");
-    setStep("reopened");
+const currentPoints = Number(
+  localStorage.getItem("cityzen_civic_points") || "1450"
+);
+
+localStorage.setItem(
+  "cityzen_civic_points",
+  String(currentPoints + 15)
+);
+
+window.dispatchEvent(new Event("civicPointsUpdated"));
+
+alert("Challenge submitted successfully");
+setStep("reopened");
   } catch (error) {
     console.error("Challenge submission error:", error);
     alert("Failed to submit challenge");
@@ -1388,7 +1423,32 @@ return (
             
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button className="amber-btn" style={{ flex: 1, background: "#063B28", color: "#4ade80", border: "1px solid #4ade8040" }} onClick={() => setStep("done")}>✓ Verify</button>
+            <button
+  className="amber-btn"
+  style={{
+    flex: 1,
+    background: "#063B28",
+    color: "#4ade80",
+    border: "1px solid #4ade8040",
+  }}
+  onClick={() => {
+    const currentPoints = Number(
+      localStorage.getItem("cityzen_civic_points") || "1450"
+    );
+
+    localStorage.setItem(
+      "cityzen_civic_points",
+      String(currentPoints + 15)
+    );
+
+    window.dispatchEvent(new Event("civicPointsUpdated"));
+
+    
+    setStep("done");
+  }}
+>
+  ✓ Verify
+</button>
             <button className="dk-outline-btn" style={{ flex: 1, color: "#f87171", borderColor: "#f8717140" }} onClick={() => setStep("challenge")}>✕ Challenge</button>
           </div>
         </>
@@ -1997,6 +2057,23 @@ const avatars = [
 ];
 
 function Profile() {
+  const [civicPoints, setCivicPoints] = useState(() =>
+  Number(localStorage.getItem("cityzen_civic_points") || "1450")
+);
+
+useEffect(() => {
+  const updatePoints = () => {
+    setCivicPoints(
+      Number(localStorage.getItem("cityzen_civic_points") || "0")
+    );
+  };
+
+  window.addEventListener("civicPointsUpdated", updatePoints);
+
+  return () => {
+    window.removeEventListener("civicPointsUpdated", updatePoints);
+  };
+}, []);
   const navigate = useNavigate();
   const [profileTab, setProfileTab] = useState<"achievements" | "activity">("achievements");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -2032,13 +2109,22 @@ function Profile() {
   ];
 
   return (
-    <div className="screen dk-screen" style={{ padding: 0 }}>
-      {/* Profile Header */}
-      <div className="dk-profile-hero">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>My Profile</span>
-          <button className="dk-icon-btn" onClick={() => setSettingsOpen(true)} style={{ fontSize: 16 }}>⚙</button>
-        </div>
+  <div className="screen dk-screen" style={{ padding: 0 }}>
+    {/* Profile Header */}
+    <div className="dk-profile-hero">
+  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+    <span style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>
+      My Profile
+    </span>
+    <button
+      className="dk-icon-btn"
+      onClick={() => setSettingsOpen(true)}
+      style={{ fontSize: 16 }}
+    >
+      ⚙
+    </button>
+  </div>
+</div>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
           <div style={{ position: "relative", cursor: "pointer" }} onClick={() => setAvatarPickerOpen(true)}>
             <div style={{ width: 56, height: 56, borderRadius: "50%", background: av.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: "2px solid #FFC107" }}>{av.icon}</div>
@@ -2052,7 +2138,7 @@ function Profile() {
         </div>
         <div style={{ background: "linear-gradient(135deg,#063B28,#0d4a33)", borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
           <div style={{ fontSize: 9, color: "#4ade80", fontFamily: "DM Mono", letterSpacing: ".08em" }}>CIVIC CONTRIBUTION SCORE</div>
-          <div style={{ fontSize: 32, color: "#FFC107", fontWeight: 800, fontFamily: "DM Mono", margin: "4px 0 2px" }}>🪙 1,450</div>
+          <div style={{ fontSize: 32, color: "#FFC107", fontWeight: 800, fontFamily: "DM Mono", margin: "4px 0 2px" }}>🪙 {civicPoints.toLocaleString()}</div>
           <div style={{ fontSize: 10, color: "#94a3b8" }}>Top 12% in Ward 23</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -2063,7 +2149,7 @@ function Profile() {
             </div>
           ))}
         </div>
-      </div>
+    
 
       {/* Tabs */}
       <div style={{ padding: "0 18px" }}>
