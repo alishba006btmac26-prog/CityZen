@@ -3834,6 +3834,8 @@ async function saveResolution() {
           marginBottom: 3,
         }}
       >
+        <span style={{ color: "#64748b" }}>{b.label}</span>
+        <span style={{ color: "#64748b" }}>{pct}%</span>
       </div>
                 
 
