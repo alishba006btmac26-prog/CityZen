@@ -591,16 +591,13 @@ function ReportModal({ open, close }: { open: boolean; close: () => void }) {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
     });
+
     setUserLocation({
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
-});
+    });
 
     setLocationSet(true);
-
-    if (!bypassDup && nearbyDuplicates[domain]) {
-      setTimeout(() => setDupDetected(true), 300);
-    }
   } catch (error) {
     console.error("GPS error:", error);
     alert("Please allow location access for CityZen.");
@@ -608,10 +605,9 @@ function ReportModal({ open, close }: { open: boolean; close: () => void }) {
 }
 
   function handleDomainChange(d: string) {
-    setDomain(d);
-    setDupDetected(false);
-    if (locationSet && !bypassDup && nearbyDuplicates[d]) setTimeout(() => setDupDetected(true), 320);
-  }
+  setDomain(d);
+  setDupDetected(false);
+}
 
   function handleUpvoteDup() {
     setDupDetected(false); setDupUpvoted(true);
