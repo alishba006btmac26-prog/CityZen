@@ -3745,47 +3745,7 @@ async function saveResolution() {
   </span>
 
   <div style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>
-    ⚠ {backendComplaints.filter((r) => r.status === "Challenged").length} resolutions challenged by citizens
-  </div>
-
-  <div style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>
-  ⚠ {
-    [
-      "Garbage",
-      "Roads",
-      "Streetlights",
-      "Sewage",
-      "Water",
-    ].filter((group) => {
-      const count = backendComplaints.filter((r) => {
-        const category = (r.category || "").toLowerCase();
-
-        if (group === "Roads") {
-          return category === "roads" || category === "pothole";
-        }
-
-        if (group === "Sewage") {
-          return category === "sewage" || category === "sanitation";
-        }
-
-        if (group === "Streetlights") {
-          return category === "streetlights" || category === "streetlight";
-        }
-
-        if (group === "Garbage") {
-          return category === "garbage" || category === "garbage pile";
-        }
-
-        if (group === "Water") {
-          return category === "water";
-        }
-
-        return false;
-      }).length;
-
-      return count >= 2;
-    }).length
-  } recurring infrastructure problems
+  ⚠ {backendComplaints.filter((r) => Number(r.is_recurring) === 1).length} recurring infrastructure problems
 </div>
 
   <div style={{ display: "flex", gap: 8, padding: "5px 0", fontSize: 12, color: "#FFC107" }}>
@@ -3844,6 +3804,7 @@ async function saveResolution() {
         <span style={{ color: "#94a3b8" }}>{b.label}</span>
         <span style={{ color: "#334155" }}>{pct}%</span>
       </div>
+                
 
       <div
         style={{
@@ -3865,6 +3826,81 @@ async function saveResolution() {
     </div>
   );
 })}
+          {backendComplaints.some((r) => Number(r.is_recurring) === 1) && (
+            <div style={{ marginBottom: 14 }}>
+              <b
+                style={{
+                  fontSize: 13,
+                  color: "#1e293b",
+                  display: "block",
+                  marginBottom: 10,
+                }}
+              >
+                Recurring Issues
+              </b>
+
+              {backendComplaints
+                .filter((r) => Number(r.is_recurring) === 1)
+                .map((r) => (
+                  <button
+                    key={r.complaint_id}
+                    onClick={() => setDetailReport(r)}
+                    style={{
+                      width: "100%",
+                      background: "#ffffff",
+                      border: "1px solid #e2e8f0",
+                      borderLeft: "3px solid #d97706",
+                      borderRadius: 12,
+                      padding: "12px 14px",
+                      marginBottom: 8,
+                      cursor: "pointer",
+                      textAlign: "left",
+                      boxShadow: "0 1px 3px rgba(15, 23, 42, 0.06)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ fontSize: 20 }}>⚠️</span>
+
+                      <div style={{ flex: 1 }}>
+                        <b
+                          style={{
+                            fontSize: 12,
+                            color: "#1e293b",
+                            display: "block",
+                          }}
+                        >
+                          {r.category}
+                        </b>
+
+                        <small
+                          style={{
+                            color: "#64748b",
+                            display: "block",
+                            marginTop: 3,
+                          }}
+                        >
+                          📍 {r.location}
+                        </small>
+
+                        <small
+                          style={{
+                            color: "#b45309",
+                            display: "block",
+                            marginTop: 4,
+                          }}
+                        >
+                          ↳ Recurring from complaint #{r.recurring_of}
+                        </small>
+                      </div>
+
+                      <span style={{ color: "#d97706", fontSize: 18 }}>›</span>
+                    </div>
+                  </button>
+                ))}
+            </div>
+          )}
+
+          <PhotoCarousel onSitePhotos={onSitePhotos} />
           <PhotoCarousel onSitePhotos={onSitePhotos} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "18px 0 10px" }}>
             <b style={{ fontSize: 13, color: "#f1f5f9" }}>Recent Reports</b>
