@@ -3383,7 +3383,9 @@ const ph = onSitePhotos[activeIdx] ?? onSitePhotos[0];
     <>
       <div style={{ marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-          <b style={{ fontSize: 13, color: "#f1f5f9" }}>Live On-Site Photos</b>
+          <b style={{ fontSize: 13, color: "#1e293b" }}>
+  Live On-Site Photos
+</b>
           <span style={{ fontSize: 9, color: "#4ade80", fontFamily: "DM Mono" }}>● LIVE · {onSitePhotos.length} FEEDS</span>
         </div>
         <div className="photo-carousel" onClick={() => setInspectPhoto(ph)}>
@@ -3707,7 +3709,8 @@ async function saveResolution() {
       {tab === "home" && (
         <div className="screen dk-screen">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <div><span style={{ fontSize: 9, color: "#cbd5e1", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block" }}>CITYZEN AUTHORITY</span><h1 style={{ fontSize: 20, color: "#f1f5f9" }}>Command Dashboard</h1></div>
+        <span style={{ color: "#64748b" }}>{b.label}</span>
+        <span style={{ color: "#64748b" }}>{pct}%</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
             {[
@@ -3738,13 +3741,31 @@ async function saveResolution() {
     "#f87171",
   ],
 ].map(([v, l, c]) => (
-              <div key={l} style={{ background: "#1C2128", border: `1px solid ${c}30`, borderRadius: 12, padding: "12px 14px", borderTop: `3px solid ${c}` }}>
+              <div
+  key={l}
+  style={{
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    padding: "12px 14px",
+    borderTop: `3px solid ${c}`,
+    boxShadow: "0 1px 3px rgba(15, 23, 42, 0.06)",
+  }}
+>
                 <b style={{ color: c, fontSize: 22, display: "block" }}>{v}</b>
                 <span style={{ fontSize: 11, color: "#cbd5e1" }}>{l}</span>
               </div>
             ))}
           </div>
-          <div style={{ background: "#2d1f0030", border: "1px solid #FFC10740", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
+          <div
+  style={{
+    background: "#fffbeb",
+    border: "1px solid #fde68a",
+    borderRadius: 12,
+    padding: "12px 14px",
+    marginBottom: 14,
+  }}
+>
   <span style={{ fontSize: 9, color: "#FFC107", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block", marginBottom: 8 }}>
     NEEDS ATTENTION
   </span>
@@ -3757,7 +3778,16 @@ async function saveResolution() {
     ⚠ {backendComplaints.filter((r) => r.status === "Overdue").length} overdue reports past SLA
   </div>
 </div>
-          <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", marginBottom: 10 }}>Domain Analytics</b>
+          <b
+  style={{
+    fontSize: 13,
+    color: "#1e293b",
+    display: "block",
+    marginBottom: 10,
+  }}
+>
+  Domain Analytics
+</b>
           {[
   { label: "Garbage", color: "#4ade80" },
   { label: "Roads", color: "#FFC107" },
@@ -3806,15 +3836,15 @@ async function saveResolution() {
           marginBottom: 3,
         }}
       >
-        <span style={{ color: "#94a3b8" }}>{b.label}</span>
-        <span style={{ color: "#94a3b8" }}>{pct}%</span>
+        <span style={{ color: "#64748b" }}>{b.label}</span>
+        <span style={{ color: "#64748b" }}>{pct}%</span>
       </div>
                 
 
       <div
         style={{
           height: 8,
-          background: "#1C2128",
+          background: "e2e8f0",
           borderRadius: 4,
           overflow: "hidden",
         }}
@@ -3870,7 +3900,7 @@ async function saveResolution() {
                         <b
                           style={{
                             fontSize: 12,
-                            color: "#1e293b",
+                            color: "#000000",
                             display: "block",
                           }}
                         >
@@ -3906,7 +3936,7 @@ async function saveResolution() {
           )}
 
           <PhotoCarousel onSitePhotos={onSitePhotos} />
-          <PhotoCarousel onSitePhotos={onSitePhotos} />
+        
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "18px 0 10px" }}>
             <b style={{ fontSize: 13, color: "#f1f5f9" }}>Recent Reports</b>
             <button style={{ background: "none", border: "none", color: "#FFC107", fontSize: 12, cursor: "pointer" }} onClick={() => setTab("queue")}>All →</button>
@@ -3920,8 +3950,8 @@ async function saveResolution() {
       alignItems: "center",
       gap: 12,
       width: "100%",
-      background: "#1C2128",
-      border: "1px solid #2d3748",
+      background: "#ffffff",
+border: "1px solid #e2e8f0",
       borderRadius: 12,
       padding: "12px 14px",
       marginBottom: 8,
@@ -3951,7 +3981,7 @@ async function saveResolution() {
           style={{
             fontSize: 9,
             color: "#60a5fa",
-            background: "#1e3a5f",
+            background: "#eff6ff",
             padding: "2px 6px",
             borderRadius: 6
           }}
@@ -4021,7 +4051,7 @@ async function saveResolution() {
       alignItems: "center",
       gap: 12,
       width: "100%",
-      background: "#1C2128",
+      background: "#e2e8f0",
       border: "1px solid #2d3748",
       borderRadius: 12,
       padding: "12px 14px",
@@ -4036,7 +4066,7 @@ async function saveResolution() {
       <b
         style={{
           fontSize: 12,
-          color: "#f1f5f9",
+          color: "#1e293b",
           display: "block"
         }}
       >
@@ -4191,7 +4221,17 @@ async function saveResolution() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
             {[["287", "Resolved", "#4ade80"], ["2.4d", "Avg Time", "#FFC107"], ["4.7★", "Rating", "#60a5fa"]].map(([v, l, c]) => (
-              <div key={l} style={{ background: "#1C2128", border: `1px solid ${c}30`, borderRadius: 12, padding: "12px 8px", textAlign: "center", borderTop: `3px solid ${c}` }}>
+              <div
+  key={l}
+  style={{
+    background: "#ffffff",
+    border: `1px solid ${c}30`,
+    borderRadius: 12,
+    padding: "12px 14px",
+    borderTop: `3px solid ${c}`,
+    boxShadow: "0 1px 3px rgba(15, 23, 42, 0.06)",
+  }}
+>
                 <b style={{ color: c, fontSize: 18, display: "block" }}>{v}</b>
                 <span style={{ fontSize: 10, color: "#cbd5e1" }}>{l}</span>
               </div>
