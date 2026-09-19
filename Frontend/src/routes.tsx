@@ -3709,8 +3709,6 @@ async function saveResolution() {
       {tab === "home" && (
         <div className="screen dk-screen">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <span style={{ color: "#64748b" }}>{b.label}</span>
-        <span style={{ color: "#64748b" }}>{pct}%</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
             {[
@@ -3836,8 +3834,6 @@ async function saveResolution() {
           marginBottom: 3,
         }}
       >
-        <span style={{ color: "#64748b" }}>{b.label}</span>
-        <span style={{ color: "#64748b" }}>{pct}%</span>
       </div>
                 
 
