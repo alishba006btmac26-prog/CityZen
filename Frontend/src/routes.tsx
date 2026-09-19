@@ -196,7 +196,7 @@ function Modal({ open, close, children }: { open: boolean; close: () => void; ch
     <div className="modal-backdrop" onClick={close}>
       <section className="dark-sheet" onClick={e => e.stopPropagation()}>
         <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={close}>×</button>
-        <div className="sheet-handle" style={{ background: "#334155" }} />
+        <div className="sheet-handle" style={{ background: "#94a3b8" }} />
         {children}
       </section>
     </div>
@@ -252,7 +252,7 @@ function HeroCarousel({ onImpact }: { onImpact: (idx: number) => void }) {
         <p style={{ fontSize: 11, color: "#94a3b8", margin: "6px 0 10px", lineHeight: 1.5 }}>{s.sub}</p>
         <div style={{ marginBottom: 10 }}>
           <b style={{ color: s.accent, fontSize: 14 }}>{s.stat}</b>
-          <span style={{ fontSize: 10, color: "#64748b" }}> · {s.statSub}</span>
+          <span style={{ fontSize: 10, color: "#cbd5e1" }}> · {s.statSub}</span>
         </div>
         <button className="hc-impact-btn" style={{ borderColor: s.accent, color: s.accent }}
           onClick={() => onImpact(slide)}>
@@ -269,7 +269,7 @@ function HeroCarousel({ onImpact }: { onImpact: (idx: number) => void }) {
       <div className="hc-dots">
         {heroSlides.map((_, i) => (
           <button key={i} onClick={() => setSlide(i)}
-            style={{ width: i === slide ? 20 : 6, height: 6, borderRadius: 3, background: i === slide ? s.accent : "#334155", border: "none", transition: "all .3s" }} />
+            style={{ width: i === slide ? 20 : 6, height: 6, borderRadius: 3, background: i === slide ? s.accent : "#94a3b8", border: "none", transition: "all .3s" }} />
         ))}
       </div>
     </section>
@@ -282,7 +282,7 @@ function ImpactModal({ idx, close }: { idx: number; close: () => void }) {
     <div className="modal-backdrop" onClick={close}>
       <section className="dark-sheet" onClick={e => e.stopPropagation()}>
         <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={close}>×</button>
-        <div className="sheet-handle" style={{ background: "#334155" }} />
+        <div className="sheet-handle" style={{ background: "#94a3b8" }} />
         <span className="eyebrow" style={{ color: s.accent }}>{s.eyebrow}</span>
         <h2 style={{ margin: "6px 0 16px", color: "#f1f5f9", fontSize: 17 }}>{s.headline.replace("\n", " ")} — Impact</h2>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
@@ -366,9 +366,9 @@ function CityStatusScreen({ close }: { close: () => void }) {
     <div className="modal-backdrop" onClick={close}>
       <section className="dark-sheet" style={{ maxHeight: "92vh", paddingBottom: 24 }} onClick={e => e.stopPropagation()}>
         <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={close}>×</button>
-        <div className="sheet-handle" style={{ background: "#334155" }} />
+        <div className="sheet-handle" style={{ background: "#94a3b8" }} />
         <span className="eyebrow" style={{ color: "#4ade80" }}>CITY STATUS · OCT 2026</span>
-        <h2 style={{ margin: "6px 0 8px", color: "#f1f5f9", fontSize: 17 }}>Delhi South Analytics</h2>
+        <h2 style={{ margin: "6px 0 8px", color: "#FFC107", fontSize: 17 }}>Delhi South Analytics</h2>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
           {[
   {
@@ -407,7 +407,7 @@ function CityStatusScreen({ close }: { close: () => void }) {
 ].map((s, i) => (
             <div key={i} style={{ background: "#1C2128", border: "1px solid #2d3748", borderRadius: 12, padding: "12px 14px" }}>
               <b style={{ color: s.color, fontSize: 20, display: "block" }}>{s.value}</b>
-              <span style={{ fontSize: 10, color: "#64748b" }}>{s.label}</span>
+              <span style={{ fontSize: 10, color: "#cbd5e1" }}>{s.label}</span>
             </div>
           ))}
         </div>
@@ -439,7 +439,7 @@ function CityStatusScreen({ close }: { close: () => void }) {
         }}
       >
         <span style={{ color: "#94a3b8" }}>{b.label}</span>
-        <span style={{ color: "#64748b" }}>{pct}%</span>
+        <span style={{ color: "#cbd5e1" }}>{pct}%</span>
       </div>
 
       <div
@@ -482,7 +482,7 @@ function CityStatusScreen({ close }: { close: () => void }) {
           <div key={i} style={{ background: "#063B2820", border: "1px solid #4ade8040", borderRadius: 10, padding: "10px 12px", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <b style={{ fontSize: 12, color: "#4ade80" }}>{c.name}</b>
-              <p style={{ fontSize: 10, color: "#64748b", marginTop: 2 }}>{c.date} · {c.loc}</p>
+              <p style={{ fontSize: 10, color: "#cbd5e1", marginTop: 2 }}>{c.date} · {c.loc}</p>
             </div>
             <button style={{ background: "#063B28", color: "#4ade80", border: "1px solid #4ade8040", borderRadius: 8, padding: "6px 12px", fontSize: 11, cursor: "pointer" }}>Join</button>
           </div>
@@ -513,7 +513,7 @@ function DuplicateCard({ domain, onUpvote, onContinue }: { domain: string; onUpv
           <div className="dup-radar-icon"><div className="dup-radar-ring" /><div className="dup-radar-ring r2" /><span>📍</span></div>
           <div>
             <span style={{ fontSize: 8, color: "#94a3b8", fontFamily: "DM Mono", letterSpacing: ".08em", display: "block" }}>PROXIMITY MATCH</span>
-            <h2 style={{ fontSize: 15, color: "#f1f5f9", marginTop: 2 }}>Issue Already Flagged Nearby!</h2>
+            <h2 style={{ fontSize: 15, color: "#1f2937", marginTop: 2 }}>Issue Already Flagged Nearby!</h2>
           </div>
         </div>
         <div className="dup-report-preview dk-dup-preview">
@@ -527,7 +527,7 @@ function DuplicateCard({ domain, onUpvote, onContinue }: { domain: string; onUpv
               <span className="dup-upvotes" style={{ marginLeft: "auto", color: "#4ade80" }}>▲ {dup.upvotes}</span>
             </div>
             <b style={{ fontSize: 13, color: "#f1f5f9", display: "block", marginBottom: 3 }}>{dup.type}</b>
-            <p style={{ fontSize: 10, color: "#64748b", marginBottom: 5 }}>📍 {dup.loc}</p>
+            <p style={{ fontSize: 10, color: "#cbd5e1", marginBottom: 5 }}>📍 {dup.loc}</p>
             <div style={{ display: "flex", gap: 6 }}>
               <span className="dup-badge" style={{ background: "#1C2128", color: "#94a3b8" }}>🕐 {dup.ago}</span>
               <span className="dup-badge" style={{ background: "#1e3a5f", color: "#60a5fa" }}>{dup.status}</span>
@@ -539,12 +539,12 @@ function DuplicateCard({ domain, onUpvote, onContinue }: { domain: string; onUpv
             <div className="dup-upvote-icon" style={{ background: "rgba(255,255,255,.1)" }}>▲</div>
             <div>
               <b>I'm Affected Too! Upvote</b>
-              <small style={{ color: "rgba(255,255,255,.6)" }}>Boosts priority · Earns +2 Civic Points</small>
+              <small style={{ color: "rgba(255,255,255,.85)" }}>Boosts priority · Earns +2 Civic Points</small>
             </div>
           </div>
           <div className="dup-pts-chip" style={{ background: "#FFC107", color: "#0f1117" }}>+2 pts</div>
         </button>
-        <button className="dup-continue-btn" style={{ color: "#64748b" }} onClick={onContinue}>
+        <button className="dup-continue-btn" style={{ color: "#475569" }} onClick={onContinue}>
           No, my issue is different — Continue Reporting →
         </button>
       </div>
@@ -711,7 +711,7 @@ window.dispatchEvent(new Event("civicPointsUpdated"));
           <span style={{ fontSize: 9, color: "#4ade80", fontFamily: "DM Mono", letterSpacing: ".1em" }}>PRIORITY BOOSTED</span>
           <h2 style={{ color: "#f1f5f9", margin: "8px 0 6px", fontSize: 17 }}>Your voice counts!</h2>
           <div className="dk-reward-box"><div style={{ fontSize: 28, color: "#FFC107" }}>✦ +2</div><b style={{ color: "#4ade80" }}>Civic Points awarded</b><p>Complaint priority boosted. Authority notified.</p></div>
-          <p style={{ fontSize: 11, color: "#64748b" }}>Returning to Home…</p>
+          <p style={{ fontSize: 11, color: "#cbd5e1" }}>Returning to Home…</p>
         </div>
       ) : submitted ? (
         <div className="dk-success-state">
@@ -742,7 +742,7 @@ window.dispatchEvent(new Event("civicPointsUpdated"));
           <div className="dk-authority-tag">
             <span style={{ fontSize: 10, color: "#4ade80" }}>Tagged Authority</span>
             <b style={{ color: "#f1f5f9" }}>{authority.name}</b>
-            <small style={{ color: "#64748b" }}>{authority.id} · {authority.dept}</small>
+            <small style={{ color: "#cbd5e1" }}>{authority.id} · {authority.dept}</small>
           </div>
           <div className="dk-pts-note">✦ <b>5 pts</b> credited. <b>15 more</b> after citizen verification.</div>
           <div style={{ display: "flex", gap: 8, width: "100%", marginTop: 12 }}>
@@ -753,17 +753,17 @@ window.dispatchEvent(new Event("civicPointsUpdated"));
       ) : !reportType ? (
         <>
           <span className="eyebrow" style={{ color: "#4ade80" }}>NEW REPORT</span>
-          <h2 style={{ margin: "6px 0 14px", color: "#f1f5f9" }}>What kind of issue?</h2>
+          <h2 style={{ margin: "6px 0 14px", color: "#1f2937" }}>What kind of issue?</h2>
           <div className="report-type-grid">
             <button className="dk-report-card" onClick={() => setReportType("normal")}>
               <span style={{ fontSize: 28 }}>📋</span>
-              <b style={{ color: "#f1f5f9" }}>Normal Report</b>
+              <b style={{ color: "#1f2937" }}>Normal Report</b>
               <small style={{ color: "#64748b" }}>Broken pavement, garbage, streetlight out</small>
               <span className="rtype-pts" style={{ background: "#063B28", color: "#4ade80" }}>+5 Civic Points</span>
             </button>
             <button className="dk-report-card dk-report-emerg" onClick={() => setReportType("emergency")}>
               <span style={{ fontSize: 28 }}>🚨</span>
-              <b style={{ color: "#f1f5f9" }}>Emergency Report</b>
+              <b style={{ color: "#1f2937" }}>Emergency Report</b>
               <small style={{ color: "#64748b" }}>Fallen wire, pipeline burst, open manhole</small>
               <span className="rtype-pts" style={{ background: "#450a0a", color: "#f87171" }}>Fast-tracked · +5 pts</span>
             </button>
@@ -776,7 +776,7 @@ window.dispatchEvent(new Event("civicPointsUpdated"));
               {reportType === "emergency" ? "🚨 EMERGENCY" : "📋 NORMAL REPORT"}
             </span>
             <button onClick={() => { setReportType(null); setDupDetected(false); setBypassDup(false); setLocationSet(false); }}
-              style={{ background: "none", fontSize: 11, color: "#64748b" }}>Change</button>
+              style={{ background: "none", fontSize: 11, color: "#cbd5e1" }}>Change</button>
           </div>
           <div className="dk-upload-box">
             <div className="dk-cam-tabs">
@@ -785,7 +785,7 @@ window.dispatchEvent(new Event("civicPointsUpdated"));
             </div>
             <div className="dk-cam-preview">
               <span>📷</span><b style={{ color: "#f1f5f9" }}>Tap to capture</b>
-              <small style={{ color: "#64748b" }}>GPS timestamp will be added automatically</small>
+              <small style={{ color: "#cbd5e1" }}>GPS timestamp will be added automatically</small>
             </div>
           </div>
           <div style={{ marginTop: 10, marginBottom: 8 }}>
@@ -828,7 +828,7 @@ window.dispatchEvent(new Event("civicPointsUpdated"));
       width: "100%",
       padding: "10px",
       borderRadius: 10,
-      border: "1px solid #334155",
+      border: "1px solid #94a3b8",
       background: "#111827",
       color: "#cbd5e1",
     }}
@@ -843,7 +843,7 @@ window.dispatchEvent(new Event("civicPointsUpdated"));
           <div className="dk-authority-tag" style={{ marginBottom: 12 }}>
             <span style={{ fontSize: 10, color: "#4ade80" }}>@ Auto-tagged Authority</span>
             <b style={{ color: "#f1f5f9" }}>{authority.name}</b>
-            <small style={{ color: "#64748b" }}>{authority.id} · {authority.dept}</small>
+            <small style={{ color: "#cbd5e1" }}>{authority.id} · {authority.dept}</small>
           </div>
           <button className="amber-btn" style={{ background: reportType === "emergency" ? "#b91c1c" : undefined }} onClick={submit}>
             Submit Report &amp; Earn 5 Civic Points
@@ -918,10 +918,10 @@ function TimelineDrawer({ rpt, onClose }: { rpt: typeof myReports[0]; onClose: (
     <div className="modal-backdrop" onClick={onClose}>
       <section className="dark-sheet" style={{ maxHeight: "92vh" }} onClick={e => e.stopPropagation()}>
         <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={onClose}>×</button>
-        <div className="sheet-handle" style={{ background: "#334155" }} />
+        <div className="sheet-handle" style={{ background: "#94a3b8" }} />
         <span style={{ fontFamily: "DM Mono", fontSize: 9, color: "#FFC107", letterSpacing: ".1em" }}>COMPLAINT TIMELINE</span>
         <h2 style={{ color: "#f1f5f9", margin: "4px 0 4px", fontSize: 16 }}>#{rpt.id}</h2>
-        <p style={{ fontSize: 10, color: "#64748b", marginBottom: 18 }}>{rpt.type} · {rpt.loc}</p>
+        <p style={{ fontSize: 10, color: "#cbd5e1", marginBottom: 18 }}>{rpt.type} · {rpt.loc}</p>
 
         {/* Step 1: Citizen Verification */}
         <div className="tl-step tl-done">
@@ -978,7 +978,7 @@ function TimelineDrawer({ rpt, onClose }: { rpt: typeof myReports[0]; onClose: (
         {/* Step 5: Citizen Feedback */}
         {(rpt.status === "Resolved" || rpt.status === "In Progress") && !accepted && !reopened && (
           <div className="tl-step">
-            <div className="tl-dot" style={{ background: "#334155", color: "#94a3b8" }}>5</div>
+            <div className="tl-dot" style={{ background: "#94a3b8", color: "#94a3b8" }}>5</div>
             <div className="tl-body">
               <b style={{ color: "#f1f5f9" }}>Step 5 — Your Feedback</b>
               <p style={{ color: "#94a3b8", fontSize: 11, marginBottom: 10 }}>Is the problem actually resolved?</p>
@@ -1072,7 +1072,7 @@ useEffect(() => {
           TRACK COMPLAINT
         </span>
 
-        <h2 style={{ color: "#f1f5f9", fontSize: 18, margin: "6px 0 14px" }}>
+        <h2 style={{ color: "#1f2937", fontSize: 18, margin: "6px 0 14px" }}>
           Track Your Complaint
         </h2>
 
@@ -1123,15 +1123,15 @@ useEffect(() => {
               </span>
             </div>
 
-            <b style={{ fontSize: 14, color: "#f1f5f9" }}>
+            <b style={{ fontSize: 14, color: "#1f2937" }}>
               {trackedComplaint.category}
             </b>
 
-            <p style={{ fontSize: 12, color: "#94a3b8" }}>
+            <p style={{ fontSize: 12, color: "#475569" }}>
               {trackedComplaint.description}
             </p>
 
-            <p style={{ fontSize: 11, color: "#64748b" }}>
+            <p style={{ fontSize: 11, color: "#cbd5e1" }}>
               📍 {trackedComplaint.location}
             </p>
 
@@ -1268,7 +1268,7 @@ useEffect(() => {
                     {r.type}
                   </b>
 
-                  <p style={{ fontSize: 11, color: "#64748b", margin: "2px 0 10px" }}>
+                  <p style={{ fontSize: 11, color: "#cbd5e1", margin: "2px 0 10px" }}>
                     📍 {r.loc} · {r.date}
                   </p>
                 </div>
@@ -1404,7 +1404,7 @@ if (!currentReport) {
           No resolutions waiting for verification
         </h2>
 
-        <p style={{ color: "#64748b", fontSize: 12 }}>
+        <p style={{ color: "#cbd5e1", fontSize: 12 }}>
           There are currently no submitted resolutions to verify.
         </p>
 
@@ -1424,7 +1424,7 @@ return (
       {step === "verify" && (
         <>
           <span className="eyebrow" style={{ color: "#FFC107" }}>RESOLUTION CHECK · {currentReport.id}</span>
-          <h2 style={{ color: "#f1f5f9", fontSize: 18, margin: "6px 0 4px" }}>Is this actually fixed?</h2>
+          <h2 style={{ color: "#1f2937", fontSize: 18, margin: "6px 0 4px" }}>Is this actually fixed?</h2>
           <p style={{ fontSize: 11, color: "#64748b", marginBottom: 14 }}><p>
   {currentReport.type} — {currentReport.location} · Evidence submitted {currentReport.completed}
 </p></p>
@@ -1550,7 +1550,7 @@ return (
   }}
 />
           <button className="amber-btn" style={{ marginTop: 14, background: "#7f1d1d", color: "#fca5a5" }} onClick={handleChallengeSubmit}>Submit Challenge</button>
-          <button style={{ background: "none", border: "none", color: "#64748b", fontSize: 12, marginTop: 8, cursor: "pointer" }} onClick={() => setStep("verify")}>← Back</button>
+          <button style={{ background: "none", border: "none", color: "#cbd5e1", fontSize: 12, marginTop: 8, cursor: "pointer" }} onClick={() => setStep("verify")}>← Back</button>
         </>
       )}
       {step === "done" && (
@@ -1568,7 +1568,7 @@ return (
           <span style={{ fontSize: 9, color: "#f87171", fontFamily: "DM Mono" }}>COMPLAINT REOPENED</span>
           <h2 style={{ color: "#f1f5f9", margin: "8px 0" }}>Challenge submitted</h2>
           <div style={{ background: "#2d0f0f", color: "#f87171", fontFamily: "DM Mono", fontSize: 12, fontWeight: 700, padding: "8px 20px", borderRadius: 20, display: "inline-block", marginBottom: 12, border: "1px solid #f8717140" }}>REOPENED</div>
-          <p style={{ fontSize: 12, color: "#64748b", marginBottom: 14 }}>The authority has been notified and will take further action.</p>
+          <p style={{ fontSize: 12, color: "#cbd5e1", marginBottom: 14 }}>The authority has been notified and will take further action.</p>
           <button className="amber-btn" style={{ background: "#7f1d1d", color: "#fca5a5" }} onClick={handleDone}>Done</button>
         </div>
       )}
@@ -1595,7 +1595,7 @@ function Home() {
           <div className="topbar-notif dk-notif">
             <div className="mauth-notif-head" style={{ borderBottom: "1px solid #1e293b", paddingBottom: 8, marginBottom: 8 }}>
               <b style={{ color: "#f1f5f9" }}>Notifications</b>
-              <button style={{ background: "none", color: "#64748b" }} onClick={() => setNotifOpen(false)}>✕</button>
+              <button style={{ background: "none", color: "#cbd5e1" }} onClick={() => setNotifOpen(false)}>✕</button>
             </div>
             <div className="mauth-notif-row" style={{ color: "#4ade80" }}>✓ Report CZ-2026-0048 was verified</div>
             <div className="mauth-notif-row" style={{ color: "#94a3b8" }}>📍 Resolution submitted for CZ-2026-0031</div>
@@ -1620,7 +1620,10 @@ function Home() {
         <div className="dk-cta-row">
           <button className="dk-cta-card" onClick={() => setTrackerOpen(true)}>
             <span className="dk-cta-icon" style={{ background: "#1e3a5f", color: "#60a5fa" }}>⌁</span>
-            <div><b>Track Reports</b><small>2 updates</small></div>
+            <div>
+              <b style={{ color: "#1f2937", display: "block" }}>Track Reports</b>
+              <small style={{ color: "#64748b" }}>2 updates</small>
+            </div>
           </button>
           <button
   className="dk-cta-card"
@@ -1630,11 +1633,17 @@ function Home() {
   }}
 >
             <span className="dk-cta-icon" style={{ background: "#063B28", color: "#4ade80" }}>✓</span>
-            <div><b>Verify Fix</b><small>1 awaiting</small></div>
+            <div>
+              <b style={{ color: "#1f2937", display: "block" }}>Verify Fix</b>
+              <small style={{ color: "#64748b" }}>1 awaiting</small>
+            </div>
           </button>
           <button className="dk-cta-card" onClick={() => setCityOpen(true)}>
             <span className="dk-cta-icon" style={{ background: "#2d1f00", color: "#FFC107" }}>◫</span>
-            <div><b>City Status</b><small>Analytics</small></div>
+            <div>
+              <b style={{ color: "#1f2937", display: "block" }}>City Status</b>
+              <small style={{ color: "#64748b" }}>Analytics</small>
+            </div>
           </button>
         </div>
 
@@ -1643,7 +1652,7 @@ function Home() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
             <div>
               <span style={{ fontSize: 9, color: "#64748b", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block" }}>LIVE · VASANT VIHAR</span>
-              <h2 style={{ color: "#f1f5f9", fontSize: 15 }}>City Map</h2>
+              <h2 style={{ color: "#1f2937", fontSize: 15 }}>City Map</h2>
             </div>
             <span style={{ fontSize: 10, color: "#64748b" }}>Delhi · Ward 23</span>
           </div>
@@ -1692,8 +1701,8 @@ function SocialTrackDrawer({ post, onClose }: { post: typeof upvotePosts[0]; onC
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <section className="dark-sheet" style={{ maxHeight: "88vh" }} onClick={e => e.stopPropagation()}>
-        <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={onClose}>×</button>
-        <div className="sheet-handle" style={{ background: "#334155" }} />
+        <button className="sheet-close" style={{ color: "64748b" }} onClick={onClose}>×</button>
+        <div className="sheet-handle" style={{ background: "#94a3b8" }} />
 
         {/* Issue header */}
         <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 14 }}>
@@ -1701,11 +1710,11 @@ function SocialTrackDrawer({ post, onClose }: { post: typeof upvotePosts[0]; onC
           <div style={{ flex: 1 }}>
             <span style={{ fontFamily: "DM Mono", fontSize: 9, color: statusColor, letterSpacing: ".1em", display: "block", marginBottom: 2 }}>{statusLabel}</span>
             <b style={{ fontSize: 14, color: "#f1f5f9" }}>{post.type}</b>
-            <p style={{ fontSize: 10, color: "#64748b", marginTop: 1 }}>📍 {post.loc} · {post.ago}</p>
+            <p style={{ fontSize: 10, color: "#cbd5e1", marginTop: 1 }}>📍 {post.loc} · {post.ago}</p>
           </div>
           <div style={{ background: statusColor + "20", border: `1px solid ${statusColor}60`, borderRadius: 10, padding: "6px 10px", textAlign: "center" }}>
             <b style={{ color: statusColor, fontFamily: "DM Mono", fontSize: 14, display: "block" }}>▲{post.upvotes}</b>
-            <span style={{ fontSize: 8, color: "#64748b" }}>upvotes</span>
+            <span style={{ fontSize: 8, color: "#cbd5e1" }}>upvotes</span>
           </div>
         </div>
 
@@ -1735,14 +1744,14 @@ function SocialTrackDrawer({ post, onClose }: { post: typeof upvotePosts[0]; onC
           { label: "Community Verified", sub: "3 citizens confirmed the issue", color: "#4ade80", done: true, icon: "✓" },
           { label: `Assigned to ${authName}`, sub: `${authId} · Priority: ${post.upvotes > 100 ? "High" : "Medium"}`, color: "#FFC107", done: true, icon: "🏛" },
           { label: "Site Inspection Scheduled", sub: post.upvotes > 100 ? "Inspection: Tomorrow 10 AM" : "Awaiting schedule confirmation", color: "#60a5fa", done: post.upvotes > 50, icon: "🔍" },
-          { label: "Resolution & Closure", sub: "Pending citizen verification", color: "#334155", done: false, icon: "🏁" },
+          { label: "Resolution & Closure", sub: "Pending citizen verification", color: "#94a3b8", done: false, icon: "🏁" },
         ].map((step, i) => (
           <div key={i} style={{ display: "flex", gap: 12, marginBottom: 14, position: "relative" }}>
             {i < 4 && <div style={{ position: "absolute", left: 14, top: 28, width: 2, height: "calc(100% + 2px)", background: step.done ? step.color + "40" : "#1e293b" }} />}
-            <div style={{ width: 28, height: 28, borderRadius: "50%", background: step.done ? step.color + "20" : "#1C2128", border: `1px solid ${step.done ? step.color : "#334155"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, zIndex: 1 }}>{step.icon}</div>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: step.done ? step.color + "20" : "#1C2128", border: `1px solid ${step.done ? step.color : "#94a3b8"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, zIndex: 1 }}>{step.icon}</div>
             <div style={{ paddingTop: 4 }}>
-              <b style={{ fontSize: 12, color: step.done ? "#f1f5f9" : "#334155", display: "block" }}>{step.label}</b>
-              <span style={{ fontSize: 10, color: "#64748b" }}>{step.sub}</span>
+              <b style={{ fontSize: 12, color: step.done ? "#f1f5f9" : "#94a3b8", display: "block" }}>{step.label}</b>
+              <span style={{ fontSize: 10, color: "#cbd5e1" }}>{step.sub}</span>
             </div>
           </div>
         ))}
@@ -1850,7 +1859,7 @@ function Social() {
                   {p.isOwn ? "ME" : p.cid.slice(-2)}
                 </div>
                 <div>
-                  <b style={{ fontSize: 12, color: p.isOwn ? "#FFC107" : "#f1f5f9" }}>{p.cid}</b>
+                  <b style={{ fontSize: 12, color: p.isOwn ? "#b45309" : "#1f2937" }}>{p.cid}</b>
                   <small style={{ color: "#64748b" }}>{p.ago} · {p.dist} · {p.loc}</small>
                 </div>
                 <span className="dk-domain-tag">{p.icon} {p.type}</span>
@@ -1889,7 +1898,7 @@ function Social() {
                 </div>
                 <div>
                   <b style={{ fontSize: 12, color: "#f1f5f9" }}>{p.cid}</b>
-                  <small style={{ color: "#64748b" }}>{p.ago} · {p.loc}</small>
+                  <small style={{ color: "#cbd5e1" }}>{p.ago} · {p.loc}</small>
                 </div>
                 <span className="dk-domain-tag" style={{ background: "#1e3a5f20", color: "#60a5fa", borderColor: "#1e40af40" }}>{p.icon} {p.type}</span>
               </header>
@@ -1920,7 +1929,7 @@ function Social() {
           <div style={{ width: "100%", maxWidth: 470, height: "85vh", background: "#0f1117", borderRadius: "24px 24px 0 0", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14 }}>
             <div style={{ width: 70, height: 70, borderRadius: "50%", background: "#063B28", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>◉</div>
             <b style={{ color: "#f1f5f9" }}>Story by {stories[storyIdx]?.label}</b>
-            <p style={{ color: "#64748b", fontSize: 12 }}>Story playback in production</p>
+            <p style={{ color: "#cbd5e1", fontSize: 12 }}>Story playback in production</p>
             <button className="amber-btn" onClick={() => setStoryIdx(null)}>Close</button>
           </div>
         </div>
@@ -1931,14 +1940,14 @@ function Social() {
         <div className="modal-backdrop" onClick={() => setShowCreate(false)}>
           <section className="dark-sheet" onClick={e => e.stopPropagation()}>
             <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setShowCreate(false)}>×</button>
-            <div className="sheet-handle" style={{ background: "#334155" }} />
+            <div className="sheet-handle" style={{ background: "#94a3b8" }} />
             <span className="eyebrow" style={{ color: "#FFC107" }}>CREATE</span>
             <h2 style={{ color: "#f1f5f9", margin: "6px 0 16px" }}>What would you like to share?</h2>
             {[["📸", "Add Story", "Disappears in 24 hours"], ["🎬", "Upload Reel / Short Video", "Short civic video clip"], ["📋", "Create Post", "Regular civic post"]].map(([ic, t, d]) => (
               <button key={t} onClick={() => setShowCreate(false)}
                 style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", background: "#1C2128", border: "1px solid #2d3748", borderRadius: 12, padding: "12px 14px", marginBottom: 8, cursor: "pointer" }}>
                 <span style={{ fontSize: 22 }}>{ic}</span>
-                <div style={{ textAlign: "left" }}><b style={{ color: "#f1f5f9", fontSize: 13, display: "block" }}>{t}</b><span style={{ fontSize: 11, color: "#64748b" }}>{d}</span></div>
+                <div style={{ textAlign: "left" }}><b style={{ color: "#f1f5f9", fontSize: 13, display: "block" }}>{t}</b><span style={{ fontSize: 11, color: "#cbd5e1" }}>{d}</span></div>
               </button>
             ))}
           </section>
@@ -1980,7 +1989,7 @@ function Volunteer() {
         {/* Top bar */}
         <div className="dark-topbar">
           <div className="dk-search">
-            <span style={{ color: "#64748b" }}>⌕</span>
+            <span style={{ color: "#cbd5e1" }}>⌕</span>
             <input style={{ background: "transparent", border: "none", flex: 1, fontSize: 12, color: "#f1f5f9", outline: "none" }} placeholder="Search volunteer drives…" />
           </div>
           <button className="dk-icon-btn" style={{ position: "relative" }} onClick={() => setNotifOpen(!notifOpen)}>
@@ -1990,7 +1999,7 @@ function Volunteer() {
 
         {notifOpen && (
           <div className="dk-dropdown">
-            <div className="dk-dropdown-head"><b>Campaign Updates</b><button style={{ background: "none", color: "#64748b" }} onClick={() => setNotifOpen(false)}>✕</button></div>
+            <div className="dk-dropdown-head"><b>Campaign Updates</b><button style={{ background: "none", color: "#cbd5e1" }} onClick={() => setNotifOpen(false)}>✕</button></div>
             <div className="dk-dropdown-row" style={{ color: "#4ade80" }}>✓ Yamuna Cleanup: 62 volunteers confirmed</div>
             <div className="dk-dropdown-row">📍 New drive near you: Malviya Nagar, Oct 27</div>
             <div className="dk-dropdown-row" style={{ color: "#FFC107" }}>🏆 CP Lighting Drive: spots filling fast!</div>
@@ -2006,7 +2015,7 @@ function Volunteer() {
             <p style={{ fontSize: 11, color: "#94a3b8", margin: "6px 0 10px", lineHeight: 1.5 }}>
               Volunteer in Delhi &amp; Earn Non-Transferable Civic SBT Badges!
             </p>
-            <div style={{ fontSize: 11, color: "#64748b", marginBottom: 12 }}>👥 {heroD.spots} spots filled · {heroD.dist} away</div>
+            <div style={{ fontSize: 11, color: "#cbd5e1", marginBottom: 12 }}>👥 {heroD.spots} spots filled · {heroD.dist} away</div>
             <button className="amber-btn" style={{ fontSize: 12 }} onClick={() => setSbtModal(heroD)}>
               Join Drive &amp; Claim SBT →
             </button>
@@ -2015,7 +2024,7 @@ function Volunteer() {
           <div className="hc-dots" style={{ bottom: 10, left: 14 }}>
             {sbtDrives.map((_, i) => (
               <button key={i} onClick={() => setSlide(i)}
-                style={{ width: i === slide ? 18 : 6, height: 6, borderRadius: 3, background: i === slide ? "#FFC107" : "#334155", border: "none", transition: "all .3s" }} />
+                style={{ width: i === slide ? 18 : 6, height: 6, borderRadius: 3, background: i === slide ? "#FFC107" : "#94a3b8", border: "none", transition: "all .3s" }} />
             ))}
           </div>
         </section>
@@ -2034,11 +2043,11 @@ function Volunteer() {
               <div className="dk-vol-icon">{d.icon}</div>
               <div style={{ flex: 1 }}>
                 <b style={{ fontSize: 13, color: "#f1f5f9", display: "block" }}>{d.title}</b>
-                <span style={{ fontSize: 10, color: "#64748b" }}>{d.organizer} · {d.date}</span>
+                <span style={{ fontSize: 10, color: "#cbd5e1" }}>{d.organizer} · {d.date}</span>
               </div>
               <span className="dk-vol-spots">👥 {d.spots}</span>
             </div>
-            <p style={{ fontSize: 11, color: "#64748b", margin: "6px 0 10px" }}>📍 {d.loc} · {d.dist} away</p>
+            <p style={{ fontSize: 11, color: "#cbd5e1", margin: "6px 0 10px" }}>📍 {d.loc} · {d.dist} away</p>
             {/* SBT Preview */}
             <div className="dk-sbt-preview">
               <div className="dk-sbt-icon">{d.icon}</div>
@@ -2064,12 +2073,12 @@ function Volunteer() {
         <div className="modal-backdrop" onClick={() => setSbtModal(null)}>
           <section className="dark-sheet" onClick={e => e.stopPropagation()}>
             <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setSbtModal(null)}>×</button>
-            <div className="sheet-handle" style={{ background: "#334155" }} />
+            <div className="sheet-handle" style={{ background: "#94a3b8" }} />
             <span className="eyebrow" style={{ color: "#4ade80" }}>REGISTER FOR DRIVE</span>
             <h2 style={{ color: "#f1f5f9", margin: "6px 0 14px", fontSize: 16 }}>{sbtModal.title}</h2>
             <div className="dk-sbt-preview" style={{ marginBottom: 14 }}>
               <div className="dk-sbt-icon" style={{ fontSize: 28 }}>{sbtModal.icon}</div>
-              <div><b style={{ color: "#FFC107", display: "block", fontSize: 13 }}>SBT: {sbtModal.sbt}</b><small style={{ color: "#64748b" }}>🔒 Non-Transferable · {sbtModal.network} · +{sbtModal.xp} XP</small></div>
+              <div><b style={{ color: "#FFC107", display: "block", fontSize: 13 }}>SBT: {sbtModal.sbt}</b><small style={{ color: "#cbd5e1" }}>🔒 Non-Transferable · {sbtModal.network} · +{sbtModal.xp} XP</small></div>
             </div>
             <input style={{ width: "100%", background: "#1C2128", border: "1px solid #2d3748", borderRadius: 12, padding: "10px 14px", color: "#f1f5f9", fontSize: 12, marginBottom: 10, outline: "none" }} placeholder="Your name (optional)" />
             <input style={{ width: "100%", background: "#1C2128", border: "1px solid #2d3748", borderRadius: 12, padding: "10px 14px", color: "#f1f5f9", fontSize: 12, marginBottom: 14, outline: "none" }} placeholder="Phone (optional)" />
@@ -2085,7 +2094,7 @@ function Volunteer() {
         <div className="modal-backdrop" onClick={() => setMintedDrive(null)}>
           <section className="dark-sheet" style={{ textAlign: "center" }} onClick={e => e.stopPropagation()}>
             <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setMintedDrive(null)}>×</button>
-            <div className="sheet-handle" style={{ background: "#334155" }} />
+            <div className="sheet-handle" style={{ background: "#94a3b8" }} />
             <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
             <span className="eyebrow" style={{ color: "#4ade80" }}>VOLUNTEER DRIVE VERIFIED!</span>
             <h2 style={{ color: "#f1f5f9", margin: "8px 0 10px", fontSize: 16 }}>Your SBT has been minted.</h2>
@@ -2098,7 +2107,7 @@ function Volunteer() {
                 <span className="dk-sbt-tag">{mintedDrive.network}</span>
                 <span className="dk-sbt-tag">Oct 2026</span>
               </div>
-              <p style={{ fontSize: 9, color: "#334155", fontFamily: "DM Mono", marginTop: 8 }}>TX: 0x9a3f…c12b · Minted</p>
+              <p style={{ fontSize: 9, color: "#94a3b8", fontFamily: "DM Mono", marginTop: 8 }}>TX: 0x9a3f…c12b · Minted</p>
             </div>
             <button className="amber-btn" style={{ marginTop: 14 }} onClick={() => setMintedDrive(null)}>View My SBT Collection</button>
           </section>
@@ -2246,7 +2255,7 @@ useEffect(() => {
             <div style={{ fontSize: 11, color: "#4ade80", marginTop: 2 }}>
   {civicLevel.icon} Level {civicLevel.level} · {civicLevel.name}
 </div>
-            <div style={{ fontSize: 10, color: "#64748b", marginTop: 2 }}>Vasant Vihar, Delhi · Active since 2024</div>
+            <div style={{ fontSize: 10, color: "#cbd5e1", marginTop: 2 }}>Vasant Vihar, Delhi · Active since 2024</div>
           </div>
         </div>
         <div style={{ background: "linear-gradient(135deg,#063B28,#0d4a33)", borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
@@ -2257,8 +2266,8 @@ useEffect(() => {
         <div style={{ display: "flex", gap: 8 }}>
           {[["14", "Reports"], ["8", "Verified"], ["5", "Drives"]].map(([val, lbl]) => (
             <div key={lbl} style={{ flex: 1, background: "#1C2128", border: "1px solid #2d3748", borderRadius: 10, padding: "8px 0", textAlign: "center" }}>
-              <b style={{ color: "#f1f5f9", fontSize: 16 }}>{val}</b>
-              <div style={{ fontSize: 9, color: "#64748b" }}>{lbl}</div>
+              <b style={{ color: "#1f2937", fontSize: 16 }}>{val}</b>
+              <div style={{ fontSize: 9, color: "#cbd5e1" }}>{lbl}</div>
             </div>
           ))}
         </div>
@@ -2280,7 +2289,7 @@ useEffect(() => {
                   <div style={{ fontSize: 26, marginBottom: 6 }}>{b.icon}</div>
                   <b style={{ fontSize: 10, color: "#f1f5f9", display: "block" }}>{b.label}</b>
                   <span style={{ fontSize: 9, color: b.color }}>{b.level}</span>
-                  <div style={{ marginTop: 6, fontSize: 8, color: "#334155", display: "flex", alignItems: "center", justifyContent: "center", gap: 3 }}>
+                  <div style={{ marginTop: 6, fontSize: 8, color: "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center", gap: 3 }}>
                     🔒 SBT · {b.network}
                   </div>
                 </div>
@@ -2309,7 +2318,7 @@ useEffect(() => {
                 <div style={{ width: 32, height: 32, borderRadius: 8, background: "#1C2128", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{a.ic}</div>
                 <div style={{ flex: 1 }}>
                   <b style={{ fontSize: 12, display: "block", color: "#f1f5f9" }}>{a.lbl}</b>
-                  <small style={{ color: "#64748b", fontSize: 10 }}>{a.sub} · {a.date}</small>
+                  <small style={{ color: "#cbd5e1", fontSize: 10 }}>{a.sub} · {a.date}</small>
                 </div>
                 <span style={{ fontFamily: "DM Mono", fontSize: 12, color: "#FFC107", fontWeight: 700 }}>{a.pts}</span>
               </div>
@@ -2327,7 +2336,7 @@ useEffect(() => {
               <div style={{ flex: 1 }}>
                 <b style={{ color: r.accent, fontSize: 16, display: "block" }}>{r.discount}</b>
                 <span style={{ fontSize: 12, color: "#f1f5f9" }}>{r.title}</span>
-                <div style={{ fontSize: 10, color: "#64748b", marginTop: 2 }}>Cost: {r.cost} Civic Points</div>
+                <div style={{ fontSize: 10, color: "#cbd5e1", marginTop: 2 }}>Cost: {r.cost} Civic Points</div>
               </div>
             </div>
             <button className="amber-btn" style={{ width: "100%", marginTop: 10, fontSize: 13 }} onClick={() => setRedeemItem(r.title)}>Redeem Now</button>
@@ -2350,7 +2359,7 @@ useEffect(() => {
         {/* Account */}
         <div style={{ borderTop: "1px solid #1e293b", paddingTop: 14, marginBottom: 30 }}>
           <button onClick={() => setHelpOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "14px 0", background: "none", border: "none", borderBottom: "1px solid #1e293b", fontSize: 13, color: "#94a3b8", cursor: "pointer" }}>
-            <span>?</span> Help &amp; Support <span style={{ marginLeft: "auto", color: "#334155" }}>→</span>
+            <span>?</span> Help &amp; Support <span style={{ marginLeft: "auto", color: "#94a3b8" }}>→</span>
           </button>
           <button onClick={() => navigate("/welcome")} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "14px 0", background: "none", border: "none", fontSize: 13, color: "#f87171", cursor: "pointer" }}>
             <span>↩</span> Log out <span style={{ marginLeft: "auto" }}>→</span>
@@ -2363,7 +2372,7 @@ useEffect(() => {
         <div className="modal-backdrop" onClick={() => { setAvatarPickerOpen(false); setPendingAvatar(selectedAvatar); }}>
           <section className="dark-sheet" onClick={e => e.stopPropagation()}>
             <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setAvatarPickerOpen(false)}>×</button>
-            <div className="sheet-handle" style={{ background: "#334155" }} />
+            <div className="sheet-handle" style={{ background: "#94a3b8" }} />
             <span className="eyebrow" style={{ color: "#FFC107" }}>AVATAR SELECTOR</span>
             <h2 style={{ color: "#f1f5f9", margin: "6px 0 16px", fontSize: 17 }}>Choose Your Citizen Avatar</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 16 }}>
@@ -2385,7 +2394,7 @@ useEffect(() => {
         <div className="modal-backdrop" onClick={() => setLeaderboardOpen(false)}>
           <section className="dark-sheet" style={{ maxHeight: "92vh" }} onClick={e => e.stopPropagation()}>
             <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setLeaderboardOpen(false)}>×</button>
-            <div className="sheet-handle" style={{ background: "#334155" }} />
+            <div className="sheet-handle" style={{ background: "#94a3b8" }} />
             <span className="eyebrow" style={{ color: "#FFC107" }}>DELHI CIVIC LEADERBOARD</span>
             <h2 style={{ color: "#f1f5f9", margin: "6px 0 14px", fontSize: 16 }}>Top Contributors</h2>
             <div className="dk-tab-bar" style={{ marginBottom: 14 }}>
@@ -2395,13 +2404,13 @@ useEffect(() => {
             </div>
             {leaderboard.map(l => (
               <div key={l.rank} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: "1px solid #1e293b" }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: l.rank <= 3 ? "#2d1f00" : "#1C2128", display: "flex", alignItems: "center", justifyContent: "center", fontSize: l.rank <= 3 ? 18 : 12, color: l.rank <= 3 ? "#FFC107" : "#64748b" }}>
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: l.rank <= 3 ? "#2d1f00" : "#1C2128", display: "flex", alignItems: "center", justifyContent: "center", fontSize: l.rank <= 3 ? 18 : 12, color: l.rank <= 3 ? "#FFC107" : "#cbd5e1" }}>
                   {l.tier || `#${l.rank}`}
                 </div>
                 <span style={{ flex: 1, fontFamily: "DM Mono", fontSize: 12, color: "#94a3b8" }}>{l.cid}</span>
                 <div style={{ textAlign: "right" }}>
                   <b style={{ color: "#FFC107", fontFamily: "DM Mono", fontSize: 13 }}>{l.pts}</b>
-                  <div style={{ fontSize: 9, color: "#64748b" }}>Civic Points</div>
+                  <div style={{ fontSize: 9, color: "#cbd5e1" }}>Civic Points</div>
                 </div>
               </div>
             ))}
@@ -2420,12 +2429,12 @@ useEffect(() => {
         <div className="modal-backdrop" onClick={() => setSettingsOpen(false)}>
           <section className="dark-sheet" onClick={e => e.stopPropagation()}>
             <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setSettingsOpen(false)}>×</button>
-            <div className="sheet-handle" style={{ background: "#334155" }} />
+            <div className="sheet-handle" style={{ background: "#94a3b8" }} />
             <span className="eyebrow" style={{ color: "#4ade80" }}>SETTINGS</span>
             <h2 style={{ color: "#f1f5f9", margin: "6px 0 16px" }}>Edit Profile</h2>
             {[["Citizen ID", citizenId, true], ["Location", "Vasant Vihar, Delhi", false], ["Email", "", false], ["Phone", "+91 98765 00000", false]].map(([lbl, val, ro]) => (
               <div key={String(lbl)} style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 11, color: "#64748b", display: "block", marginBottom: 4 }}>{lbl}</label>
+                <label style={{ fontSize: 11, color: "#cbd5e1", display: "block", marginBottom: 4 }}>{lbl}</label>
                 <input className="dk-field" defaultValue={String(val)} readOnly={Boolean(ro)} style={{ opacity: ro ? .6 : 1 }} />
               </div>
             ))}
@@ -2439,13 +2448,13 @@ useEffect(() => {
         <div className="modal-backdrop" onClick={() => setHelpOpen(false)}>
           <section className="dark-sheet" onClick={e => e.stopPropagation()}>
             <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setHelpOpen(false)}>×</button>
-            <div className="sheet-handle" style={{ background: "#334155" }} />
+            <div className="sheet-handle" style={{ background: "#94a3b8" }} />
             <span className="eyebrow" style={{ color: "#4ade80" }}>HELP &amp; SUPPORT</span>
             <h2 style={{ color: "#f1f5f9", margin: "6px 0 16px" }}>How can we help?</h2>
             {[["📧", "Email Support", "support@cityzen.in"], ["📞", "Helpline", "1800-111-CITY · Mon–Sat 9AM–6PM"], ["📋", "Report a Bug", "Tap to submit an app issue"], ["📖", "User Guide", "How to use CityZen effectively"]].map(([ic, t, d]) => (
               <div key={String(t)} style={{ display: "flex", gap: 12, alignItems: "center", padding: "12px 0", borderBottom: "1px solid #1e293b" }}>
                 <span style={{ fontSize: 22 }}>{ic}</span>
-                <div><b style={{ fontSize: 13, display: "block", color: "#f1f5f9" }}>{t}</b><small style={{ color: "#64748b" }}>{d}</small></div>
+                <div><b style={{ fontSize: 13, display: "block", color: "#f1f5f9" }}>{t}</b><small style={{ color: "#cbd5e1" }}>{d}</small></div>
               </div>
             ))}
           </section>
@@ -2457,7 +2466,7 @@ useEffect(() => {
         <div className="modal-backdrop" onClick={() => setRedeemItem(null)}>
           <section className="dark-sheet" style={{ textAlign: "center" }} onClick={e => e.stopPropagation()}>
             <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setRedeemItem(null)}>×</button>
-            <div className="sheet-handle" style={{ background: "#334155" }} />
+            <div className="sheet-handle" style={{ background: "#94a3b8" }} />
             <div style={{ fontSize: 36 }}>🎟</div>
             <h2 style={{ color: "#f1f5f9", margin: "8px 0 6px" }}>Redemption Requested!</h2>
             <p style={{ color: "#94a3b8", fontSize: 12, lineHeight: 1.6, marginBottom: 14 }}>{redeemItem} — Your voucher code will be sent to your registered email within 24 hours.</p>
@@ -2485,7 +2494,7 @@ function Welcome() {
             {["#063B28", "#1e3a5f", "#2d1f00", "#2d0838"].map((bg, i) => (
               <div key={i} style={{ width: 32, height: 32, borderRadius: "50%", background: bg, border: "2px solid #FFC10760", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "#FFC107", fontWeight: 700 }}>CZ</div>
             ))}
-            <span style={{ fontSize: 10, color: "#64748b" }}>+3,912 citizens active</span>
+            <span style={{ fontSize: 10, color: "#cbd5e1" }}>+3,912 citizens active</span>
           </div>
           <div className="welcome-actions">
             <button className="amber-btn" style={{ width: "100%", height: 50, fontSize: 14 }} onClick={() => navigate("/verify")}>
@@ -2495,7 +2504,7 @@ function Welcome() {
               🏛 Log in as Authority
             </button>
           </div>
-          <p style={{ fontSize: 10, color: "#334155", marginTop: 18, textAlign: "center" }}>
+          <p style={{ fontSize: 10, color: "#94a3b8", marginTop: 18, textAlign: "center" }}>
             By continuing you agree to CityZen's{" "}
             <button onClick={() => setTermsOpen(true)} style={{ background: "none", border: "none", color: "#FFC107", textDecoration: "underline", cursor: "pointer", fontSize: 10 }}>
               Terms &amp; Privacy Policy
@@ -2561,7 +2570,7 @@ function verifyOTP() {
 return (
     <>
       <div className="screen dk-welcome-screen" style={{ justifyContent: "flex-start", paddingTop: 20 }}>
-        <button style={{ background: "none", border: "none", color: "#64748b", fontSize: 13, cursor: "pointer", alignSelf: "flex-start", marginBottom: 16 }} onClick={() => navigate("/welcome")}>← Back</button>
+        <button style={{ background: "none", border: "none", color: "#cbd5e1", fontSize: 13, cursor: "pointer", alignSelf: "flex-start", marginBottom: 16 }} onClick={() => navigate("/welcome")}>← Back</button>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
           <CityZenLogo size="md" />
           {done ? (
@@ -2571,14 +2580,14 @@ return (
               <div style={{ background: "#063B2840", border: "1px solid #4ade8040", borderRadius: 12, padding: "12px 20px", marginTop: 14 }}>
                 <div style={{ fontSize: 10, color: "#4ade80", marginBottom: 4, fontFamily: "DM Mono" }}>YOUR CITIZEN ID</div>
                 <div style={{ fontFamily: "DM Mono", fontSize: 22, color: "#FFC107", fontWeight: 700 }}>{citizenId}</div>
-                <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>Save this ID — your CityZen identity</div>
+                <div style={{ fontSize: 10, color: "#cbd5e1", marginTop: 4 }}>Save this ID — your CityZen identity</div>
               </div>
-              <p style={{ color: "#64748b", fontSize: 11, marginTop: 12 }}>Redirecting…</p>
+              <p style={{ color: "#cbd5e1", fontSize: 11, marginTop: 12 }}>Redirecting…</p>
             </div>
           ) : (
             <>
               <h2 style={{ color: "#f1f5f9", fontSize: 20, margin: "14px 0 4px" }}>Citizen Login</h2>
-              <p style={{ fontSize: 12, color: "#64748b", marginBottom: 20, textAlign: "center" }}>Your unique Citizen ID is auto-generated on signup.</p>
+              <p style={{ fontSize: 12, color: "#cbd5e1", marginBottom: 20, textAlign: "center" }}>Your unique Citizen ID is auto-generated on signup.</p>
               <form onSubmit={submit} style={{ width: "100%" }}>
                {[
   ["email", "Email Address", "you@example.com"],
@@ -2589,7 +2598,7 @@ return (
     <label
       style={{
         fontSize: 11,
-        color: "#64748b",
+        color: "#cbd5e1",
         display: "block",
         marginBottom: 4,
       }}
@@ -2638,7 +2647,7 @@ return (
   </div>
 ))}
                 <div style={{ background: "#1C2128", border: "1px solid #FFC10740", borderRadius: 12, padding: "12px 16px", margin: "14px 0", textAlign: "center" }}>
-                  <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4, fontFamily: "DM Mono" }}>YOUR CITIZEN ID (auto-generated)</div>
+                  <div style={{ fontSize: 10, color: "#cbd5e1", marginBottom: 4, fontFamily: "DM Mono" }}>YOUR CITIZEN ID (auto-generated)</div>
                   <div style={{ fontFamily: "DM Mono", fontSize: 20, color: "#FFC107", fontWeight: 700 }}>{citizenId}</div>
                 </div>
                 
@@ -2667,7 +2676,7 @@ return (
 
     <div
       style={{
-        color: "#64748b",
+        color: "#cbd5e1",
         fontSize: 10,
         textAlign: "center",
         marginBottom: 10,
@@ -2735,7 +2744,7 @@ return (
 
     <div
       style={{
-        color: "#64748b",
+        color: "#cbd5e1",
         fontSize: 10,
         textAlign: "center",
         marginBottom: 10,
@@ -2847,7 +2856,7 @@ return (
     </button>
   </div>
 )}
-                <p style={{ fontSize: 10, color: "#334155", marginTop: 12, textAlign: "center" }}>
+                <p style={{ fontSize: 10, color: "#94a3b8", marginTop: 12, textAlign: "center" }}>
                   By signing up you agree to our{" "}
                   <button type="button" onClick={() => setTermsOpen(true)} style={{ background: "none", border: "none", color: "#FFC107", textDecoration: "underline", cursor: "pointer", fontSize: 10 }}>
                     Terms &amp; Privacy Policy
@@ -2886,7 +2895,7 @@ function AuthorityLogin() {
   return (
     <>
       <div className="screen dk-welcome-screen" style={{ justifyContent: "flex-start", paddingTop: 20 }}>
-        <button style={{ background: "none", border: "none", color: "#64748b", fontSize: 13, cursor: "pointer", alignSelf: "flex-start", marginBottom: 16 }} onClick={() => navigate("/welcome")}>← Back</button>
+        <button style={{ background: "none", border: "none", color: "#cbd5e1", fontSize: 13, cursor: "pointer", alignSelf: "flex-start", marginBottom: 16 }} onClick={() => navigate("/welcome")}>← Back</button>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
           <CityZenLogo size="md" />
           {done ? (
@@ -2897,36 +2906,36 @@ function AuthorityLogin() {
                 <div style={{ fontSize: 10, color: "#FFC107", marginBottom: 4, fontFamily: "DM Mono" }}>AUTHORITY ID</div>
                 <div style={{ fontFamily: "DM Mono", fontSize: 20, color: "#FFC107", fontWeight: 700 }}>{authId}</div>
               </div>
-              <p style={{ color: "#64748b", fontSize: 11, marginTop: 12 }}>Redirecting…</p>
+              <p style={{ color: "#cbd5e1", fontSize: 11, marginTop: 12 }}>Redirecting…</p>
             </div>
           ) : (
             <>
               <h2 style={{ color: "#f1f5f9", fontSize: 20, margin: "14px 0 4px" }}>Authority Login</h2>
-              <p style={{ fontSize: 12, color: "#64748b", marginBottom: 20, textAlign: "center" }}>For government officials and municipal officers only.</p>
+              <p style={{ fontSize: 12, color: "#cbd5e1", marginBottom: 20, textAlign: "center" }}>For government officials and municipal officers only.</p>
               <form onSubmit={submit} style={{ width: "100%" }}>
-                <label style={{ fontSize: 11, color: "#64748b", display: "block", marginBottom: 4 }}>Official Email</label>
+                <label style={{ fontSize: 11, color: "#cbd5e1", display: "block", marginBottom: 4 }}>Official Email</label>
                 <input type="email" className="dk-field" placeholder="officer@mcd.delhi.gov.in" value={email} onChange={e => setEmail(e.target.value)} required style={{ marginBottom: 10 }} />
-                <label style={{ fontSize: 11, color: "#64748b", display: "block", marginBottom: 4 }}>Password</label>
+                <label style={{ fontSize: 11, color: "#cbd5e1", display: "block", marginBottom: 4 }}>Password</label>
                 <input type="password" className="dk-field" placeholder="Secure password" value={password} onChange={e => setPassword(e.target.value)} required style={{ marginBottom: 10 }} />
-                <label style={{ fontSize: 11, color: "#64748b", display: "block", marginBottom: 4 }}>Concerned Domain</label>
+                <label style={{ fontSize: 11, color: "#cbd5e1", display: "block", marginBottom: 4 }}>Concerned Domain</label>
                 <select className="dk-field" value={domain} onChange={e => setDomain(e.target.value)} style={{ marginBottom: 10 }}>
                   {Object.keys(domainAuthority).map(d => <option key={d}>{d}</option>)}
                 </select>
-                <label style={{ fontSize: 11, color: "#64748b", display: "block", marginBottom: 4 }}>Jurisdiction</label>
+                <label style={{ fontSize: 11, color: "#cbd5e1", display: "block", marginBottom: 4 }}>Jurisdiction</label>
                 <select className="dk-field" value={jurisdiction} onChange={e => setJurisdiction(e.target.value)} style={{ marginBottom: 10 }}>
                   {jurisdictions.map(j => <option key={j}>{j}</option>)}
                 </select>
                 <div className="dk-upload-box" style={{ marginBottom: 10, cursor: "pointer", borderColor: govtId ? "#4ade80" : undefined }} onClick={() => setGovtId(true)}>
                   <span>{govtId ? "✓" : "📎"}</span>
                   <b style={{ color: govtId ? "#4ade80" : "#f1f5f9" }}>{govtId ? "Document uploaded" : "Upload Govt. ID / Office Letter"}</b>
-                  <small style={{ color: "#64748b" }}>{govtId ? "Pending admin verification" : "JPEG, PNG or PDF · Max 5MB"}</small>
+                  <small style={{ color: "#cbd5e1" }}>{govtId ? "Pending admin verification" : "JPEG, PNG or PDF · Max 5MB"}</small>
                 </div>
                 <div style={{ background: "#1C2128", border: "1px solid #FFC10740", borderRadius: 12, padding: "12px 16px", margin: "10px 0 14px", textAlign: "center" }}>
-                  <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4, fontFamily: "DM Mono" }}>AUTHORITY ID (auto-assigned)</div>
+                  <div style={{ fontSize: 10, color: "#cbd5e1", marginBottom: 4, fontFamily: "DM Mono" }}>AUTHORITY ID (auto-assigned)</div>
                   <div style={{ fontFamily: "DM Mono", fontSize: 20, color: "#FFC107", fontWeight: 700 }}>{authId}</div>
                 </div>
                 <button type="submit" className="dk-auth-btn" style={{ width: "100%", fontSize: 14 }}>Register &amp; Request Access</button>
-                <p style={{ fontSize: 10, color: "#334155", marginTop: 12, textAlign: "center" }}>
+                <p style={{ fontSize: 10, color: "#94a3b8", marginTop: 12, textAlign: "center" }}>
                   <button type="button" onClick={() => setTermsOpen(true)} style={{ background: "none", border: "none", color: "#FFC107", textDecoration: "underline", cursor: "pointer", fontSize: 10 }}>Terms &amp; Privacy Policy</button>
                 </p>
               </form>
@@ -2992,7 +3001,7 @@ function AuthorityReportSheet({
           ×
         </button>
 
-        <div className="sheet-handle" style={{ background: "#334155" }} />
+        <div className="sheet-handle" style={{ background: "#94a3b8" }} />
 
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
           <span
@@ -3035,7 +3044,7 @@ function AuthorityReportSheet({
         <p
           style={{
             fontSize: 11,
-            color: "#64748b",
+            color: "#cbd5e1",
             marginBottom: 10,
           }}
         >
@@ -3169,7 +3178,7 @@ function AuthorityReportSheet({
         <label
           style={{
             fontSize: 11,
-            color: "#64748b",
+            color: "#cbd5e1",
             display: "block",
             marginBottom: 4,
           }}
@@ -3362,7 +3371,7 @@ function PhotoCarousel({ onSitePhotos }: { onSitePhotos: any[] }) {
 
   if (!onSitePhotos.length) {
   return (
-    <div style={{ marginBottom: 16, color: "#64748b", fontSize: 12 }}>
+    <div style={{ marginBottom: 16, color: "#cbd5e1", fontSize: 12 }}>
       No on-site photos available.
     </div>
   );
@@ -3417,7 +3426,7 @@ const ph = onSitePhotos[activeIdx] ?? onSitePhotos[0];
         <div className="modal-backdrop" onClick={() => setInspectPhoto(null)}>
           <section className="dark-sheet" onClick={e => e.stopPropagation()}>
             <button className="sheet-close" style={{ color: "#94a3b8" }} onClick={() => setInspectPhoto(null)}>×</button>
-            <div className="sheet-handle" style={{ background: "#334155" }} />
+            <div className="sheet-handle" style={{ background: "#94a3b8" }} />
             <span style={{ fontFamily: "DM Mono", fontSize: 9, color: inspectPhoto.color, letterSpacing: ".1em", display: "block", marginBottom: 4 }}>INSPECTION MODAL · {inspectPhoto.id}</span>
             <h2 style={{ color: "#f1f5f9", fontSize: 16, marginBottom: 12 }}>{inspectPhoto.label}</h2>
 
@@ -3438,10 +3447,10 @@ const ph = onSitePhotos[activeIdx] ?? onSitePhotos[0];
                 <span style={{ fontSize: 9, color: "#60a5fa", fontFamily: "DM Mono", background: "#1e3a5f", padding: "2px 8px", borderRadius: 6 }}>📍 GEO-TAG</span>
                 <span style={{ fontSize: 9, color: "#a78bfa", fontFamily: "DM Mono", background: "#1a1040", padding: "2px 8px", borderRadius: 6 }}>🤖 AI ASSESSED</span>
               </div>
-              <p style={{ fontSize: 11, color: "#64748b", marginBottom: 6, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 11, color: "#cbd5e1", marginBottom: 6, lineHeight: 1.5 }}>
                 <b style={{ color: "#94a3b8" }}>Location:</b> {inspectPhoto.zone} · {inspectPhoto.lat}, {inspectPhoto.lon}
               </p>
-              <p style={{ fontSize: 11, color: "#64748b", lineHeight: 1.5 }}>
+              <p style={{ fontSize: 11, color: "#cbd5e1", lineHeight: 1.5 }}>
                 <b style={{ color: "#a78bfa" }}>AI Assessment:</b> {inspectPhoto.aiNote}
               </p>
             </div>
@@ -3683,7 +3692,7 @@ async function saveResolution() {
 
       {notifOpen && (
         <div className="dk-dropdown" style={{ top: 54 }}>
-          <div className="dk-dropdown-head"><b>Notifications</b><button style={{ background: "none", color: "#64748b" }} onClick={() => setNotifOpen(false)}>✕</button></div>
+          <div className="dk-dropdown-head"><b>Notifications</b><button style={{ background: "none", color: "#cbd5e1" }} onClick={() => setNotifOpen(false)}>✕</button></div>
           <div className="dk-dropdown-row" style={{ color: "#f87171" }}>⚡ RPT-2092 auto-escalated · 451 upvotes</div>
           <div className="dk-dropdown-row" style={{ color: "#4ade80" }}>✓ RPT-2089 community-verified fixed</div>
         </div>
@@ -3691,14 +3700,14 @@ async function saveResolution() {
 
       <div className="status-bar" style={{ background: "#0a0d12", borderBottom: "1px solid #1e293b" }}>
         <span className="sb-live" style={{ color: "#4ade80" }}><i className="net-dot on" />Live</span>
-        <span className="sb-city" style={{ color: "#334155" }}>Authority Portal · Delhi South</span>
+        <span className="sb-city" style={{ color: "#94a3b8" }}>Authority Portal · Delhi South</span>
         <span className="sb-pts" style={{ color: "#FFC107" }}>✦ Verified</span>
       </div>
 
       {tab === "home" && (
         <div className="screen dk-screen">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <div><span style={{ fontSize: 9, color: "#64748b", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block" }}>CITYZEN AUTHORITY</span><h1 style={{ fontSize: 20, color: "#f1f5f9" }}>Command Dashboard</h1></div>
+            <div><span style={{ fontSize: 9, color: "#cbd5e1", fontFamily: "DM Mono", letterSpacing: ".1em", display: "block" }}>CITYZEN AUTHORITY</span><h1 style={{ fontSize: 20, color: "#f1f5f9" }}>Command Dashboard</h1></div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
             {[
@@ -3731,7 +3740,7 @@ async function saveResolution() {
 ].map(([v, l, c]) => (
               <div key={l} style={{ background: "#1C2128", border: `1px solid ${c}30`, borderRadius: 12, padding: "12px 14px", borderTop: `3px solid ${c}` }}>
                 <b style={{ color: c, fontSize: 22, display: "block" }}>{v}</b>
-                <span style={{ fontSize: 11, color: "#64748b" }}>{l}</span>
+                <span style={{ fontSize: 11, color: "#cbd5e1" }}>{l}</span>
               </div>
             ))}
           </div>
@@ -3798,7 +3807,7 @@ async function saveResolution() {
         }}
       >
         <span style={{ color: "#94a3b8" }}>{b.label}</span>
-        <span style={{ color: "#334155" }}>{pct}%</span>
+        <span style={{ color: "#94a3b8" }}>{pct}%</span>
       </div>
                 
 
@@ -3933,7 +3942,7 @@ async function saveResolution() {
         {r.category}
       </b>
 
-      <small style={{ color: "#64748b" }}>
+      <small style={{ color: "#cbd5e1" }}>
         📍 {r.location}
       </small>
 
@@ -3984,21 +3993,21 @@ async function saveResolution() {
           <div className="screen dk-screen">
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
               <h2 style={{ color: "#f1f5f9" }}>Issue Queue</h2>
-              <span style={{ fontSize: 11, color: "#64748b" }}>Ward 23 · {filtered.length} shown</span>
+              <span style={{ fontSize: 11, color: "#cbd5e1" }}>Ward 23 · {filtered.length} shown</span>
             </div>
             <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 10 }}>
               {filterDefs.map(f => (
                 <button key={f.key} onClick={() => setQueueFilter(f.key)}
                   style={{ flexShrink: 0, padding: "5px 12px", borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: "pointer",
                     background: queueFilter === f.key ? f.color + "25" : "#1C2128",
-                    color: queueFilter === f.key ? f.color : "#64748b",
+                    color: queueFilter === f.key ? f.color : "#cbd5e1",
                     border: `1px solid ${queueFilter === f.key ? f.color + "60" : "#2d3748"}` }}>
                   {f.label}
                 </button>
               ))}
             </div>
             {filtered.length === 0 && (
-              <div style={{ textAlign: "center", padding: "40px 0", color: "#334155" }}>
+              <div style={{ textAlign: "center", padding: "40px 0", color: "#94a3b8" }}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>✓</div>
                 <b style={{ fontSize: 13 }}>No issues in this category</b>
               </div>
@@ -4034,7 +4043,7 @@ async function saveResolution() {
         {r.category}
       </b>
 
-      <small style={{ color: "#64748b" }}>
+      <small style={{ color: "#cbd5e1" }}>
         📍 {r.location}
       </small>
 
@@ -4068,7 +4077,7 @@ async function saveResolution() {
           {[["Roads", 26, "#FFC107"], ["Sanitation", 32, "#4ade80"], ["Electricity", 18, "#60a5fa"], ["Water", 10, "#38bdf8"]].map(([l, p, c]) => (
             <div key={String(l)} style={{ marginBottom: 8 }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 3 }}>
-                <span style={{ color: "#94a3b8" }}>{l}</span><span style={{ color: "#334155" }}>{p}%</span>
+                <span style={{ color: "#94a3b8" }}>{l}</span><span style={{ color: "#94a3b8" }}>{p}%</span>
               </div>
               <div style={{ height: 8, background: "#1C2128", borderRadius: 4, overflow: "hidden" }}>
                 <div style={{ width: `${p}%`, height: "100%", background: c as string, borderRadius: 4 }} />
@@ -4092,7 +4101,7 @@ async function saveResolution() {
               <div key={m.label} style={{ background: "#1C2128", border: `1px solid ${m.color}30`, borderRadius: 12, padding: "10px 8px", textAlign: "center", borderTop: `3px solid ${m.color}` }}>
                 <span style={{ fontSize: 10, color: m.color }}>{m.icon}</span>
                 <b style={{ color: m.color, fontSize: 20, display: "block", fontFamily: "DM Mono" }}>{m.v}</b>
-                <span style={{ fontSize: 9, color: "#64748b", lineHeight: 1.3, display: "block" }}>{m.label}</span>
+                <span style={{ fontSize: 9, color: "#cbd5e1", lineHeight: 1.3, display: "block" }}>{m.label}</span>
               </div>
             ))}
           </div>
@@ -4119,7 +4128,7 @@ async function saveResolution() {
               <div style={{ height: 7, background: "#0f1117", borderRadius: 4, overflow: "hidden", marginBottom: 4 }}>
                 <div style={{ width: `${w.pct}%`, height: "100%", background: w.color, borderRadius: 4 }} />
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#64748b" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#cbd5e1" }}>
                 <span>{w.pct}% of target</span>
                 <span>{w.resolved} resolved</span>
               </div>
@@ -4139,7 +4148,7 @@ async function saveResolution() {
               </div>
               <div style={{ flex: 1 }}>
                 <b style={{ fontSize: 11, color: "#f1f5f9", display: "block" }}>{w.ward}</b>
-                <span style={{ fontSize: 10, color: "#64748b" }}>{w.delta}</span>
+                <span style={{ fontSize: 10, color: "#cbd5e1" }}>{w.delta}</span>
               </div>
               <b style={{ color: w.color, fontFamily: "DM Mono", fontSize: 18 }}>{w.issues}</b>
             </div>
@@ -4154,7 +4163,7 @@ async function saveResolution() {
               { label: "Emergency Response SLA", val: "45 min", icon: "🚨", color: "#f87171" },
             ].map(b => (
               <div key={b.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderTop: "1px solid rgba(255,255,255,.05)" }}>
-                <span style={{ fontSize: 11, color: "#64748b" }}>{b.icon} {b.label}</span>
+                <span style={{ fontSize: 11, color: "#cbd5e1" }}>{b.icon} {b.label}</span>
                 <b style={{ fontSize: 12, color: b.color, fontFamily: "DM Mono" }}>{b.val}</b>
               </div>
             ))}
@@ -4175,7 +4184,7 @@ async function saveResolution() {
             </div>
             {[["Domain", "Roads & Infrastructure"], ["Jurisdiction", "Ward 23 · Vasant Vihar"], ["Active Since", "Jan 2024"], ["Reports Handled", "342"]].map(([k, v]) => (
               <div key={String(k)} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderTop: "1px solid rgba(255,255,255,.08)" }}>
-                <span style={{ fontSize: 11, color: "#64748b" }}>{k}</span>
+                <span style={{ fontSize: 11, color: "#cbd5e1" }}>{k}</span>
                 <b style={{ fontSize: 12, color: "#f1f5f9" }}>{v}</b>
               </div>
             ))}
@@ -4184,7 +4193,7 @@ async function saveResolution() {
             {[["287", "Resolved", "#4ade80"], ["2.4d", "Avg Time", "#FFC107"], ["4.7★", "Rating", "#60a5fa"]].map(([v, l, c]) => (
               <div key={l} style={{ background: "#1C2128", border: `1px solid ${c}30`, borderRadius: 12, padding: "12px 8px", textAlign: "center", borderTop: `3px solid ${c}` }}>
                 <b style={{ color: c, fontSize: 18, display: "block" }}>{v}</b>
-                <span style={{ fontSize: 10, color: "#64748b" }}>{l}</span>
+                <span style={{ fontSize: 10, color: "#cbd5e1" }}>{l}</span>
               </div>
             ))}
           </div>
