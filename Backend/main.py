@@ -65,6 +65,18 @@ except sqlite3.OperationalError:
     pass
 
 conn.commit()
+# Add recurring issue fields to complaints
+try:
+    cursor.execute("ALTER TABLE complaints ADD COLUMN is_recurring INTEGER DEFAULT 0")
+except sqlite3.OperationalError:
+    pass
+
+try:
+    cursor.execute("ALTER TABLE complaints ADD COLUMN recurring_of INTEGER")
+except sqlite3.OperationalError:
+    pass
+
+conn.commit()
 # Create users table
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
@@ -265,6 +277,8 @@ async def create_complaint(
     category: str = Form(...),
     description: str = Form(...),
     location: str = Form(...),
+    latitude: float | None = Form(None),
+    longitude: float | None = Form(None),
     photo: UploadFile | None = File(None),
 ):
     photo_filename = None
@@ -275,22 +289,42 @@ async def create_complaint(
 
         with open(photo_path, "wb") as buffer:
             buffer.write(await photo.read())
+        # Check if this is a recurring issue
+        cursor.execute(
+        """
+        SELECT id
+        FROM complaints
+        WHERE LOWER(TRIM(category)) = LOWER(TRIM(?))
+          AND latitude = ?
+          AND longitude = ?
+        ORDER BY id DESC
+        LIMIT 1
+        """,
+        (category, latitude, longitude),
+    )
+
+    previous_complaint = cursor.fetchone()
+
+    is_recurring = 1 if previous_complaint else 0
+    recurring_of = previous_complaint[0] if previous_complaint else None
 
     cursor.execute(
         """
         INSERT INTO complaints
-        (category, description, location, latitude, longitude, status, complaint_photo)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+(category, description, location, latitude, longitude, status, complaint_photo, is_recurring, recurring_of)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
-            category,
-            description,
-            location,
-            latitude,
-            longitude,
-            "Reported",
-            photo_filename,
-        ),
+    category,
+    description,
+    location,
+    latitude,
+    longitude,
+    "Reported",
+    photo_filename,
+    is_recurring,
+    recurring_of,
+),
 
     )
     conn.commit()
@@ -333,32 +367,42 @@ FROM complaints
         "location": complaint[3],
         "status": complaint[4],
         "resolution_description": complaint[6],
-        "resolution_photo": complaint[7], 
-        "challenge_photo": complaint[8],
-        "challenge_description": complaint[9]
+
+"resolution_photo": complaint[7],
+
+"challenge_photo": complaint[8],
+
+"challenge_description": complaint[9],
+
+"is_recurring": complaint[12],
+
+"recurring_of": complaint[13],
     }
 
 @app.get("/complaints")
 def get_complaints():
 
     cursor.execute(
-"""
-SELECT
-    id,
-    category,
-    description,
-    location,
-    latitude,
-    longitude,
-    status,
-    complaint_photo,
-    resolution_description,
-    resolution_photo,
-    challenge_photo,
-    challenge_description
-FROM complaints
-ORDER BY id DESC
-"""
+        """
+        SELECT
+            id,
+            category,
+            description,
+            location,
+            latitude,
+            longitude,
+            status,
+            complaint_photo,
+            resolution_description,
+            resolution_photo,
+            challenge_photo,
+challenge_description,
+is_recurring,
+recurring_of
+        FROM complaints
+        ORDER BY id DESC
+        """
+    )
 
     complaints = cursor.fetchall()
 
@@ -366,23 +410,22 @@ ORDER BY id DESC
 
     for complaint in complaints:
         result.append({
-result.append({
-    "complaint_id": f"CZ-2026-{complaint[0]:04d}",
-    "category": complaint[1],
-    "description": complaint[2],
-    "location": complaint[3],
-    "latitude": complaint[4],
-    "longitude": complaint[5],
-    "status": complaint[6],
-    "complaint_photo": complaint[7],
-    "resolution_description": complaint[8],
-    "resolution_photo": complaint[9],
-    "challenge_photo": complaint[10],
-    "challenge_description": complaint[11],
-})
+            "complaint_id": f"CZ-2026-{complaint[0]:04d}",
+            "category": complaint[1],
+            "description": complaint[2],
+            "location": complaint[3],
+            "latitude": complaint[4],
+            "longitude": complaint[5],
+            "status": complaint[6],
+            "complaint_photo": complaint[7],
+            "resolution_description": complaint[8],
+                        "challenge_photo": complaint[10],
+            "challenge_description": complaint[11],
+            "is_recurring": complaint[12],
+            "recurring_of": complaint[13],
+        })
 
     return result
-
 @app.put("/complaints/{complaint_id}/status")
 def update_complaint_status(complaint_id: str, status: str):
     complaint_number = int(complaint_id.split("-")[-1])
